@@ -100,7 +100,10 @@
                     <h2 class="setup-title">Posiziona le tue navi</h2>
                     <p class="setup-subtitle">Clicca su una nave e poi sulla griglia per posizionarla</p>
                     <div id="onlineSetupInfo" class="online-setup-info" style="display: none;">
-                        <strong>Partita live:</strong> condividi il codice <span id="activeRoomCode">-</span> con l'altro partecipante
+                        <strong>Partita live:</strong> condividi il codice
+                        <span id="activeRoomCode" style="font-weight: bold; font-size: 1.2em; color: #6366f1;">-</span>
+                        <button class="btn btn-copy" id="copySetupCodeBtn" title="Copia codice">📋 Copia</button>
+                        con l'altro partecipante
                     </div>
                 </div>
 
@@ -184,7 +187,11 @@
         <div id="gameScreen" class="screen">
             <div class="game-container">
                 <div class="online-status-bar" id="onlineStatusBar" style="display: none;">
-                    <div><strong>Codice stanza:</strong> <span id="gameRoomCode">-</span></div>
+                    <div>
+                        <strong>Codice stanza:</strong>
+                        <span id="gameRoomCode" style="font-weight: bold; font-size: 1.1em; color: #6366f1;">-</span>
+                        <button class="btn btn-copy btn-copy-small" id="copyGameCodeBtn" title="Copia codice">📋</button>
+                    </div>
                     <div><strong>Stato:</strong> <span id="connectionStatus">Connesso</span></div>
                 </div>
 

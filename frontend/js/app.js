@@ -95,6 +95,14 @@ class BattleshipApp {
             this.startGame();
         });
 
+        // Copy button for setup screen
+        const copySetupCodeBtn = document.getElementById('copySetupCodeBtn');
+        if (copySetupCodeBtn) {
+            copySetupCodeBtn.addEventListener('click', () => {
+                this.copyRoomCode('activeRoomCode');
+            });
+        }
+
         this.setupDualModeListeners();
     }
 
@@ -114,6 +122,14 @@ class BattleshipApp {
                 this.sendChatMessage();
             }
         });
+
+        // Copy button for game screen
+        const copyGameCodeBtn = document.getElementById('copyGameCodeBtn');
+        if (copyGameCodeBtn) {
+            copyGameCodeBtn.addEventListener('click', () => {
+                this.copyRoomCode('gameRoomCode');
+            });
+        }
     }
 
     setupModalListeners() {
@@ -986,6 +1002,37 @@ class BattleshipApp {
         if (statusEl) {
             statusEl.textContent = status;
         }
+    }
+
+    copyRoomCode(elementId) {
+        const codeElement = document.getElementById(elementId);
+        if (!codeElement) return;
+
+        const code = codeElement.textContent.trim();
+        if (code === '-' || !code) {
+            this.ui.showToast('Nessun codice da copiare', 'warning');
+            return;
+        }
+
+        // Copy to clipboard
+        navigator.clipboard.writeText(code).then(() => {
+            this.ui.showToast('✓ Codice copiato negli appunti!', 'success');
+        }).catch(() => {
+            // Fallback for older browsers
+            const textArea = document.createElement('textarea');
+            textArea.value = code;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                this.ui.showToast('✓ Codice copiato negli appunti!', 'success');
+            } catch (err) {
+                this.ui.showToast('Errore nella copia del codice', 'error');
+            }
+            document.body.removeChild(textArea);
+        });
     }
 
     resetOnlineState(disconnect = true) {

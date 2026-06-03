@@ -177,13 +177,28 @@ class UIManager {
     addAttackFlash(gridElement, row, col) {
         const targetCell = gridElement.querySelector(`[data-row="${row}"][data-col="${col}"]`);
         if (targetCell) {
-            // Add flash animation class
+            // Add flash animation class for the blue flash
             targetCell.classList.add('attack-flash');
             
-            // Remove the class after animation completes
+            // Remove the flash class after animation completes
             setTimeout(() => {
                 targetCell.classList.remove('attack-flash');
-            }, 600); // Match the animation duration
+            }, 600);
+
+            // Add new-hit or new-sunk class for the rotation animation
+            // This will be applied after the grid is re-rendered
+            setTimeout(() => {
+                const updatedCell = gridElement.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+                if (updatedCell) {
+                    if (updatedCell.classList.contains('sunk')) {
+                        updatedCell.classList.add('new-sunk');
+                        setTimeout(() => updatedCell.classList.remove('new-sunk'), 800);
+                    } else if (updatedCell.classList.contains('hit')) {
+                        updatedCell.classList.add('new-hit');
+                        setTimeout(() => updatedCell.classList.remove('new-hit'), 600);
+                    }
+                }
+            }, 50);
         }
     }
 
