@@ -71,24 +71,10 @@ class PeerMultiplayer {
         return this.peerId;
     }
 
-    // Generate a shorter, more user-friendly room code
-    generateShortCode() {
-        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Removed confusing chars like I, O, 0, 1
-        let code = '';
-        for (let i = 0; i < 6; i++) {
-            code += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        return code;
-    }
-
     hostGame() {
         this.isHost = true;
-        // Use the full peerId for PeerJS connection, but generate a short code for display
         this.pendingHostCode = this.peerId;
-        this.shortCode = this.generateShortCode();
-        // Store mapping between short code and full peerId
-        localStorage.setItem(`room_${this.shortCode}`, this.peerId);
-        return this.shortCode;
+        return this.peerId;
     }
 
     async joinGame(roomCode) {
@@ -98,15 +84,8 @@ class PeerMultiplayer {
 
         this.isHost = false;
 
-        // Check if this is a short code and convert to full peerId
-        let fullPeerId = roomCode;
-        const storedPeerId = localStorage.getItem(`room_${roomCode.toUpperCase()}`);
-        if (storedPeerId) {
-            fullPeerId = storedPeerId;
-        }
-
         return new Promise((resolve, reject) => {
-            const conn = this.peer.connect(fullPeerId, {
+            const conn = this.peer.connect(roomCode, {
                 reliable: true
             });
 
