@@ -678,10 +678,18 @@ class BattleshipApp {
                 this.startSetup();
             } else {
                 this.isHost = false;
+                
+                // Verifica che il roomCode sia valido prima di procedere
+                if (!this.roomCode || this.roomCode.trim() === '') {
+                    throw new Error('Codice stanza mancante');
+                }
+                
                 this.ui.showLoading('Connessione alla stanza...');
                 await this.peerMultiplayer.joinGame(this.roomCode);
                 this.ui.hideLoading();
-                this.ui.showToast('Connesso alla stanza! Attendi il setup.', 'success');
+                this.ui.showToast('Connesso alla stanza!', 'success');
+                // Passa alla schermata di setup anche per il guest
+                this.startSetup();
             }
         } catch (error) {
             console.error('Errore inizializzazione PeerJS:', error);
