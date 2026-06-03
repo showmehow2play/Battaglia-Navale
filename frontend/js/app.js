@@ -750,7 +750,7 @@ class BattleshipApp {
 
         this.peerMultiplayer.on('opponent_ready', () => {
             this.opponentReady = true;
-            this.ui.showToast('L'avversario ha completato il setup.', 'info');
+            this.ui.showToast("L'avversario ha completato il setup.", 'info');
 
             if (this.game && this.game.areAllPlayerShipsPlaced() && !this.onlineGameStarted) {
                 this.startPeerGame();
@@ -791,12 +791,12 @@ class BattleshipApp {
 
     startOnlineGame() {
         if (!this.peerMultiplayer || !this.peerMultiplayer.isConnected()) {
-            this.ui.showToast('Attendi la connessione dell’avversario prima di iniziare.', 'warning');
+            this.ui.showToast("Attendi la connessione dell'avversario prima di iniziare.", 'warning');
             return;
         }
 
         this.peerMultiplayer.sendSetupComplete();
-        this.ui.showToast('Setup completato. In attesa dell’avversario...', 'info');
+        this.ui.showToast("Setup completato. In attesa dell'avversario...", 'info');
 
         if (this.opponentReady && !this.onlineGameStarted) {
             this.startPeerGame();
@@ -838,7 +838,7 @@ class BattleshipApp {
         if (this.chatEnabled) {
             this.ui.addChatMessage('Sistema', `Partita live avviata. Codice stanza: ${this.roomCode}`);
         }
-        this.ui.showToast(this.isHost ? 'Partita iniziata! Tocca a te.' : 'Partita iniziata! Tocca all'avversario.', 'success');
+        this.ui.showToast(this.isHost ? 'Partita iniziata! Tocca a te.' : "Partita iniziata! Tocca all'avversario.", 'success');
     }
 
     setupPeerAttackHandler() {
@@ -1008,7 +1008,7 @@ class BattleshipApp {
             this.ui.addChatMessage('Tu', message);
             input.value = '';
         } else {
-            this.ui.showToast('Non connesso all\'avversario', 'warning');
+            this.ui.showToast('Non connesso all avversario', 'warning');
         }
     }
 

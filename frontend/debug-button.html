@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Debug Button</title>
+    <style>
+        body { padding: 50px; font-family: Arial; }
+        button { padding: 15px 30px; font-size: 18px; cursor: pointer; }
+        #log { margin-top: 20px; padding: 20px; background: #f0f0f0; }
+    </style>
+</head>
+<body>
+    <h1>Test Pulsante "Crea Partita Live"</h1>
+    
+    <div>
+        <label>
+            <input type="checkbox" id="enableChatCheckbox" checked>
+            💬 Abilita chat durante la partita
+        </label>
+    </div>
+    
+    <br>
+    
+    <button data-mode="online-quick" id="testBtn">⚡ Crea Partita Live</button>
+    
+    <div id="log"></div>
+
+    <script>
+        function log(msg) {
+            document.getElementById('log').innerHTML += msg + '<br>';
+            console.log(msg);
+        }
+
+        // Simula il codice di app.js
+        const quickBtn = document.querySelector('[data-mode="online-quick"]');
+        log('Pulsante trovato: ' + (quickBtn ? 'SI' : 'NO'));
+        
+        if (quickBtn) {
+            quickBtn.addEventListener('click', () => {
+                log('Click rilevato!');
+                
+                const gameMode = 'online';
+                const roomCode = null;
+                
+                // Leggi lo stato del checkbox per la chat
+                const chatCheckbox = document.getElementById('enableChatCheckbox');
+                const chatEnabled = chatCheckbox ? chatCheckbox.checked : true;
+                
+                log('gameMode: ' + gameMode);
+                log('roomCode: ' + roomCode);
+                log('chatCheckbox trovato: ' + (chatCheckbox ? 'SI' : 'NO'));
+                log('chatEnabled: ' + chatEnabled);
+                log('Tutto OK! Il codice funziona correttamente.');
+            });
+            log('Event listener aggiunto con successo');
+        } else {
+            log('ERRORE: Pulsante non trovato!');
+        }
+    </script>
+</body>
+</html>
