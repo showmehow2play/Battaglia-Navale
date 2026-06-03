@@ -674,6 +674,8 @@ class BattleshipApp {
                 this.roomCode = roomId;
                 this.ui.hideLoading();
                 this.ui.showToast(`Partita live creata. Condividi questo codice: ${this.roomCode}`, 'success', 12000);
+                // Passa alla schermata di setup per posizionare le navi
+                this.startSetup();
             } else {
                 this.isHost = false;
                 this.ui.showLoading('Connessione alla stanza...');
