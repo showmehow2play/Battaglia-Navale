@@ -1388,6 +1388,40 @@ main {
     width: 100%;
 }
 
+/* Chat Option Checkbox */
+.chat-option-container {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.chat-option-label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    user-select: none;
+}
+
+.chat-option-label input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: var(--secondary-color);
+}
+
+.chat-option-text {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
+}
+
+.chat-option-label:hover .chat-option-text {
+    color: white;
+}
+
 .rules-section {
     background: var(--glass-bg);
     backdrop-filter: blur(20px);

@@ -6,6 +6,7 @@ class PeerMultiplayer {
         this.peerId = null;
         this.pendingHostCode = null;
         this.isHost = false;
+        this.chatEnabled = true; // Default: chat abilitata
     }
 
     on(event, handler) {
@@ -139,6 +140,11 @@ class PeerMultiplayer {
         this.send('opponent_ready', {});
     }
 
+    sendChatConfig(chatEnabled) {
+        this.chatEnabled = chatEnabled;
+        this.send('chat_config', { chatEnabled });
+    }
+
     sendAttack(row, col) {
         this.send('opponent_attack', { row, col });
     }
@@ -148,6 +154,10 @@ class PeerMultiplayer {
     }
 
     sendChatMessage(message) {
+        if (!this.chatEnabled) {
+            console.warn('Chat disabilitata, messaggio non inviato');
+            return;
+        }
         this.send('chat_message', { message });
     }
 

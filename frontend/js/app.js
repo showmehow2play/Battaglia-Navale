@@ -13,6 +13,7 @@ class BattleshipApp {
         this.difficulty = null;
         this.roomCode = null;
         this.isHost = false;
+        this.chatEnabled = true; // Default: chat abilitata
         this.opponentReady = false;
         this.onlineGameStarted = false;
         this.pendingAttack = null;
@@ -55,6 +56,9 @@ class BattleshipApp {
             quickBtn.addEventListener('click', () => {
                 this.gameMode = 'online';
                 this.roomCode = null;
+                // Leggi lo stato del checkbox per la chat
+                const chatCheckbox = document.getElementById('enableChatCheckbox');
+                this.chatEnabled = chatCheckbox ? chatCheckbox.checked : true;
                 this.initializePeerMultiplayer(true);
             });
         }
@@ -726,14 +730,27 @@ class BattleshipApp {
             console.log('✓ Connesso con:', data.peerId);
             this.updateConnectionStatus('Connesso');
             this.ui.showToast('Avversario connesso! Inizia il setup.', 'success');
+            
+            // Se sono l'host, invio la configurazione della chat
+            if (this.isHost) {
+                this.peerMultiplayer.sendChatConfig(this.chatEnabled);
+            }
+            
             if (this.ui.currentScreen !== 'setup') {
                 this.startSetup();
             }
         });
 
+        this.peerMultiplayer.on('chat_config', (data) => {
+            // Il guest riceve la configurazione della chat dall'host
+            this.chatEnabled = data.chatEnabled;
+            this.peerMultiplayer.chatEnabled = data.chatEnabled;
+            console.log('Configurazione chat ricevuta:', this.chatEnabled ? 'abilitata' : 'disabilitata');
+        });
+
         this.peerMultiplayer.on('opponent_ready', () => {
             this.opponentReady = true;
-            this.ui.showToast('L’avversario ha completato il setup.', 'info');
+            this.ui.showToast('L'avversario ha completato il setup.', 'info');
 
             if (this.game && this.game.areAllPlayerShipsPlaced() && !this.onlineGameStarted) {
                 this.startPeerGame();
@@ -749,7 +766,9 @@ class BattleshipApp {
         });
 
         this.peerMultiplayer.on('chat_message', (data) => {
-            this.ui.addChatMessage('Avversario', data.message);
+            if (this.chatEnabled) {
+                this.ui.addChatMessage('Avversario', data.message);
+            }
         });
 
         this.peerMultiplayer.on('game_over', (data) => {
@@ -809,13 +828,17 @@ class BattleshipApp {
         this.ui.renderMyShipsList(this.game.playerFleet);
         this.ui.updateStats(this.stats);
         this.ui.updateEnemyStats(this.enemyStats);
-        this.ui.toggleChatPanel(true);
+        // Mostra la chat solo se abilitata
+        this.ui.toggleChatPanel(this.chatEnabled);
         this.toggleOnlineStatus(true);
         this.updateConnectionStatus('Connesso');
         this.setupPeerAttackHandler();
         this.ui.updateTurnIndicators(this.game.isPlayerTurn);
-        this.ui.addChatMessage('Sistema', `Partita live avviata. Codice stanza: ${this.roomCode}`);
-        this.ui.showToast(this.isHost ? 'Partita iniziata! Tocca a te.' : 'Partita iniziata! Tocca all’avversario.', 'success');
+        // Aggiungi messaggio di sistema solo se la chat è abilitata
+        if (this.chatEnabled) {
+            this.ui.addChatMessage('Sistema', `Partita live avviata. Codice stanza: ${this.roomCode}`);
+        }
+        this.ui.showToast(this.isHost ? 'Partita iniziata! Tocca a te.' : 'Partita iniziata! Tocca all'avversario.', 'success');
     }
 
     setupPeerAttackHandler() {
@@ -975,12 +998,17 @@ class BattleshipApp {
 
         if (!message) return;
 
+        if (!this.chatEnabled) {
+            this.ui.showToast('Chat disabilitata per questa partita', 'warning');
+            return;
+        }
+
         if (this.peerMultiplayer && this.peerMultiplayer.isConnected()) {
             this.peerMultiplayer.sendChatMessage(message);
             this.ui.addChatMessage('Tu', message);
             input.value = '';
         } else {
-            this.ui.showToast('Non connesso all’avversario', 'warning');
+            this.ui.showToast('Non connesso all\'avversario', 'warning');
         }
     }
 
