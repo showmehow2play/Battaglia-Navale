@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚢 Battaglia Navale - Launcher</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .launcher {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 60px 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        h1 {
+            font-size: 48px;
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-weight: 800;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            color: #718096;
+            margin-bottom: 40px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 18px 40px;
+            margin: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .info {
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 12px;
+            font-size: 14px;
+            color: #4a5568;
+            line-height: 1.6;
+        }
+
+        .info strong {
+            color: #2d3748;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .feature {
+            padding: 15px;
+            background: rgba(102, 126, 234, 0.05);
+            border-radius: 8px;
+            font-size: 14px;
+            color: #4a5568;
+        }
+
+        .feature-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 600px) {
+            .launcher {
+                padding: 40px 20px;
+            }
+
+            h1 {
+                font-size: 36px;
+            }
+
+            .logo {
+                font-size: 60px;
+            }
+
+            .btn {
+                display: block;
+                width: 100%;
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="launcher">
+        <div class="logo">⚓</div>
+        <h1>Battaglia Navale</h1>
+        <p class="subtitle">Affonda la flotta nemica!</p>
+
+        <div>
+            <a href="frontend/index.html" class="btn btn-primary">
+                🎮 Gioca Ora
+            </a>
+            <button onclick="showInfo()" class="btn btn-secondary">
+                📖 Info
+            </button>
+        </div>
+
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">🤖</div>
+                <strong>vs CPU</strong><br>
+                3 difficoltà
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🌐</div>
+                <strong>Online</strong><br>
+                1v1 multiplayer
+            </div>
+            <div class="feature">
+                <div class="feature-icon">📱</div>
+                <strong>Responsive</strong><br>
+                Mobile & Desktop
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🎨</div>
+                <strong>Moderno</strong><br>
+                UI glassmorphism
+            </div>
+        </div>
+
+        <div class="info" id="info" style="display: none;">
+            <strong>🎯 Come Giocare:</strong><br>
+            1. Scegli modalità (vs CPU o Online)<br>
+            2. Posiziona le tue 5 navi sulla griglia<br>
+            3. A turno, attacca la griglia avversaria<br>
+            4. Vince chi affonda per primo tutte le navi!<br><br>
+
+            <strong>🚢 Navi Disponibili:</strong><br>
+            • Portaerei (5 celle)<br>
+            • Corazzata (4 celle)<br>
+            • Incrociatore (3 celle)<br>
+            • Sottomarino (3 celle)<br>
+            • Cacciatorpediniere (2 celle)<br><br>
+
+            <strong>💡 Modalità vs CPU:</strong><br>
+            • <strong>Facile:</strong> Tiri casuali<br>
+            • <strong>Medio:</strong> Hunt & target<br>
+            • <strong>Difficile:</strong> AI avanzata con probability map<br><br>
+
+            <strong>🌐 Modalità Online:</strong><br>
+            • <strong>Partita Rapida:</strong> Matchmaking automatico<br>
+            • <strong>Stanza Privata:</strong> Gioca con un amico (codice 6 caratteri)<br>
+            • Chat in tempo reale<br>
+            • Timeout turno: 60 secondi<br><br>
+
+            <strong>⌨️ Controlli:</strong><br>
+            • Click per selezionare/posizionare<br>
+            • Tasto R per ruotare nave<br>
+            • Tasto Spazio per posizionamento casuale<br>
+            • Completamente accessibile da tastiera
+        </div>
+    </div>
+
+    <script>
+        function showInfo() {
+            const info = document.getElementById('info');
+            if (info.style.display === 'none') {
+                info.style.display = 'block';
+            } else {
+                info.style.display = 'none';
+            }
+        }
+
+        // Redirect automatico dopo 3 secondi se si preme un tasto
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                window.location.href = 'frontend/index.html';
+            }
+        });
+    </script>
+</body>
+</html>

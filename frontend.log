@@ -1,0 +1,9 @@
+::1 - - [01/Jun/2026 11:50:48] "GET / HTTP/1.1" 200 -
+::1 - - [01/Jun/2026 11:50:48] "GET /css/style.css HTTP/1.1" 200 -
+::1 - - [01/Jun/2026 11:50:48] "GET /js/utils.js HTTP/1.1" 200 -
+::1 - - [01/Jun/2026 11:50:48] "GET /js/ship.js HTTP/1.1" 200 -
+::1 - - [01/Jun/2026 11:50:48] "GET /js/grid.js HTTP/1.1" 200 -
+::1 - - [01/Jun/2026 11:50:48] "GET /js/ai.js HTTP/1.1" 200 -
+::1 - - [01/Jun/2026 11:50:48] "GET /js/game-engine.js HTTP/1.1" 200 -
+::1 - - [01/Jun/2026 11:50:48] "GET /js/ui.js HTTP/1.1" 200 -
+::1 - - [01/Jun/2026 11:50:48] "GET /js/app.js HTTP/1.1" 200 -

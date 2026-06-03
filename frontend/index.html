@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Battaglia Navale - Gioca contro il computer o sfida un amico online con codice stanza">
+    <meta name="keywords" content="battaglia navale, battleship, gioco, ai, multiplayer, online">
+    <meta name="author" content="Battaglia Navale">
+    
+    <meta name="theme-color" content="#6366f1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Battaglia Navale">
+    
+    <title>Battaglia Navale</title>
+    
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚓</text></svg>">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                Battaglia Navale
+            </div>
+            <div class="header-actions">
+                <div class="mode-badge" id="modeBadge">Menu Principale</div>
+                <button class="btn btn-secondary" id="backBtn" style="display: none;">
+                    ← Indietro
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div id="menuScreen" class="screen active">
+            <div class="menu-container">
+                <div class="menu-hero">
+                    <h1 class="menu-title">⚓ Battaglia Navale</h1>
+                    <p class="menu-subtitle">Affonda la flotta nemica prima che affondi la tua!</p>
+                </div>
+
+                <div class="menu-options">
+                    <div class="menu-card">
+                        <div class="menu-card-icon">🤖</div>
+                        <h2 class="menu-card-title">Gioca vs Computer</h2>
+                        <p class="menu-card-description">Sfida l'intelligenza artificiale con 3 livelli di difficoltà</p>
+                        <div class="difficulty-buttons">
+                            <button class="btn btn-primary" data-mode="cpu" data-difficulty="easy">
+                                😊 Facile
+                            </button>
+                            <button class="btn btn-primary" data-mode="cpu" data-difficulty="medium">
+                                😐 Medio
+                            </button>
+                            <button class="btn btn-primary" data-mode="cpu" data-difficulty="hard">
+                                😈 Difficile
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="menu-card">
+                        <div class="menu-card-icon">🌐</div>
+                        <h2 class="menu-card-title">Gioca Online in 2</h2>
+                        <p class="menu-card-description">Crea una partita live e condividi il codice stanza con un altro partecipante</p>
+                        <div class="difficulty-buttons">
+                            <button class="btn btn-primary" data-mode="online-quick">
+                                ⚡ Crea Partita Live
+                            </button>
+                            <button class="btn btn-secondary" data-mode="online-private">
+                                🔑 Entra con Codice
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rules-section">
+                    <button class="btn btn-secondary" id="toggleRules">
+                        📖 Regole del Gioco
+                    </button>
+                    <div class="rules-content" id="rulesContent" style="display: none;">
+                        <h3>Come si gioca</h3>
+                        <ul>
+                            <li><strong>Obiettivo:</strong> Affonda tutte le navi avversarie prima che affondi le tue</li>
+                            <li><strong>Griglia:</strong> 10x10 (A-J, 1-10)</li>
+                            <li><strong>Navi:</strong> Portaerei (5), Corazzata (4), Incrociatore (3), Sottomarino (3), Cacciatorpediniere (2)</li>
+                            <li><strong>Setup:</strong> Posiziona le tue navi orizzontalmente o verticalmente (senza sovrapposizioni)</li>
+                            <li><strong>Turni:</strong> A turno, scegli una cella nella griglia avversaria per attaccare</li>
+                            <li><strong>Esiti:</strong> 💧 Acqua (mancato), ✕ Colpito, 💥 Affondato</li>
+                            <li><strong>Online:</strong> Un giocatore crea la stanza e condivide il codice, l'altro entra con quel codice</li>
+                            <li><strong>Vittoria:</strong> Vince chi affonda per primo tutte le navi avversarie</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="setupScreen" class="screen">
+            <div class="setup-container">
+                <div class="setup-header">
+                    <h2 class="setup-title">Posiziona le tue navi</h2>
+                    <p class="setup-subtitle">Clicca su una nave e poi sulla griglia per posizionarla</p>
+                    <div id="onlineSetupInfo" class="online-setup-info" style="display: none;">
+                        <strong>Partita live:</strong> condividi il codice <span id="activeRoomCode">-</span> con l'altro partecipante
+                    </div>
+                </div>
+
+                <div class="setup-content">
+                    <div class="ships-panel">
+                        <h3>Flotta Disponibile</h3>
+                        <div id="shipsList" class="ships-selection"></div>
+                        <div class="setup-controls">
+                            <button class="btn btn-secondary" id="rotateBtn">
+                                🔄 Ruota Nave
+                            </button>
+                            <button class="btn btn-secondary" id="randomBtn">
+                                🎲 Posizionamento Casuale
+                            </button>
+                            <button class="btn btn-primary" id="startGameBtn" disabled>
+                                ▶️ Inizia Partita
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="setup-grid-container">
+                        <div id="setupGrid" class="grid"></div>
+                        <div class="setup-legend">
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: linear-gradient(135deg, rgba(51, 65, 85, 0.9) 0%, rgba(30, 41, 59, 0.9) 100%);"></div>
+                                <span>Nave posizionata</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);"></div>
+                                <span>Acqua</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="placement-mode-panel">
+                        <h3>Modalità Posizionamento</h3>
+                        <div class="placement-mode-toggle">
+                            <label class="mode-option">
+                                <input type="radio" name="placementMode" value="quick" checked>
+                                <div class="mode-content">
+                                    <span class="mode-icon">⚡</span>
+                                    <div>
+                                        <strong>Rapido</strong>
+                                        <small>1 click, posizionamento automatico</small>
+                                    </div>
+                                </div>
+                            </label>
+                            <label class="mode-option">
+                                <input type="radio" name="placementMode" value="manual">
+                                <div class="mode-content">
+                                    <span class="mode-icon">✋</span>
+                                    <div>
+                                        <strong>Manuale</strong>
+                                        <small>Seleziona ogni cella della nave</small>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                        
+                        <div id="manualModeControls" style="display: none;">
+                            <div class="selection-counter" id="selectionCounter">
+                                0/5 celle selezionate
+                            </div>
+                            <div class="selection-hint" id="selectionHint">
+                                Seleziona le celle sulla stessa riga o colonna
+                            </div>
+                            <div class="manual-controls">
+                                <button class="btn btn-secondary" id="cancelSelectionBtn">
+                                    ❌ Annulla
+                                </button>
+                                <button class="btn btn-primary" id="confirmPlacementBtn" disabled>
+                                    ✓ Conferma Posizionamento
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="gameScreen" class="screen">
+            <div class="game-container">
+                <div class="online-status-bar" id="onlineStatusBar" style="display: none;">
+                    <div><strong>Codice stanza:</strong> <span id="gameRoomCode">-</span></div>
+                    <div><strong>Stato:</strong> <span id="connectionStatus">Connesso</span></div>
+                </div>
+
+                <div class="grids-area">
+                    <div class="grid-section grid-section-enemy">
+                        <div class="grid-header">
+                            <h3 class="grid-title">🎯 Griglia Nemica</h3>
+                            <div class="turn-indicator turn-waiting" id="enemyTurnIndicator">
+                                In attesa...
+                            </div>
+                        </div>
+                        <div class="grid-wrapper">
+                            <div id="enemyGrid" class="grid grid-large"></div>
+                            <div class="ships-compact">
+                                <h4>⚓ Flotta</h4>
+                                <ul class="ships-list-compact" id="enemyShipsList"></ul>
+                            </div>
+                        </div>
+                        <div class="grid-stats">
+                            <h4>📊 I Miei Attacchi</h4>
+                            <div class="stats-compact">
+                                <div class="stat-item-compact">
+                                    <div class="stat-label">Colpi</div>
+                                    <div class="stat-value" id="shotsCount">0</div>
+                                </div>
+                                <div class="stat-item-compact">
+                                    <div class="stat-label">Colpiti</div>
+                                    <div class="stat-value" id="hitsCount">0</div>
+                                </div>
+                                <div class="stat-item-compact">
+                                    <div class="stat-label">Mancati</div>
+                                    <div class="stat-value" id="missesCount">0</div>
+                                </div>
+                                <div class="stat-item-compact">
+                                    <div class="stat-label">Precisione</div>
+                                    <div class="stat-value" id="accuracyValue">0%</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid-section grid-section-my">
+                        <div class="grid-header">
+                            <h3 class="grid-title">🛡️ La Mia Flotta</h3>
+                            <div class="turn-indicator turn-waiting" id="myTurnIndicator">
+                                In attesa...
+                            </div>
+                        </div>
+                        <div class="grid-wrapper">
+                            <div id="myGrid" class="grid grid-large"></div>
+                            <div class="ships-compact">
+                                <h4>🚢 Flotta</h4>
+                                <ul class="ships-list-compact" id="myShipsList"></ul>
+                            </div>
+                        </div>
+                        <div class="grid-stats">
+                            <h4>📊 Attacchi Nemici</h4>
+                            <div class="stats-compact">
+                                <div class="stat-item-compact">
+                                    <div class="stat-label">Colpi</div>
+                                    <div class="stat-value" id="enemyShotsCount">0</div>
+                                </div>
+                                <div class="stat-item-compact">
+                                    <div class="stat-label">Colpiti</div>
+                                    <div class="stat-value" id="enemyHitsCount">0</div>
+                                </div>
+                                <div class="stat-item-compact">
+                                    <div class="stat-label">Mancati</div>
+                                    <div class="stat-value" id="enemyMissesCount">0</div>
+                                </div>
+                                <div class="stat-item-compact">
+                                    <div class="stat-label">Precisione</div>
+                                    <div class="stat-value" id="enemyAccuracyValue">0%</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="my-grid-actions">
+                            <button class="btn btn-secondary" id="surrenderBtn">
+                                🏳️ Arrenditi
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="chatPanel" class="chat-panel" style="display: none;">
+                    <div class="chat-header">
+                        <h3>💬 Chat partita</h3>
+                    </div>
+                    <div id="chatMessages" class="chat-messages"></div>
+                    <div class="chat-input-row">
+                        <input type="text" id="chatInput" class="chat-input" maxlength="200" placeholder="Scrivi un messaggio...">
+                        <button class="btn btn-primary" id="sendChatBtn">Invia</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="privateRoomModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <h2>🔑 Entra in una partita live</h2>
+                <div class="modal-body">
+                    <p>Inserisci il codice partecipante condiviso dall'altro giocatore.</p>
+                    <input type="text" id="roomCodeInput" class="room-code-input" maxlength="64" placeholder="Es. abc123xyz">
+                </div>
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" id="cancelRoomBtn">Annulla</button>
+                    <button class="btn btn-primary" id="joinRoomBtn">Entra</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="slotMachineModal" class="modal" style="display: none;">
+            <div class="modal-content slot-machine-modal">
+                <h2 class="slot-machine-title">🎉 Complimenti! 🎉</h2>
+                <p class="slot-machine-subtitle">Hai affondato una nave!<br>Premi START per scoprire il tuo premio!</p>
+                
+                <div class="slot-machine-container">
+                    <div class="slot-machine">
+                        <div class="slot-reel" id="slotReel1">
+                            <div class="slot-item">Dimmi</div>
+                            <div class="slot-item">Dammi</div>
+                            <div class="slot-item">Comanda</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="slot-result" id="slotResult" style="display: none;">
+                    <div class="slot-result-text"></div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button class="btn btn-primary btn-large start-button" id="startStopSlotBtn">
+                        🎰 START
+                    </button>
+                    <button class="btn btn-secondary" id="closeSlotBtn" style="display: none;">
+                        Continua a Giocare
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="gameOverModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <h2 id="gameOverTitle">Partita Terminata</h2>
+                <div class="modal-body">
+                    <div id="gameOverMessage" class="game-over-message"></div>
+                    <div id="gameOverStats" class="game-over-stats"></div>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn btn-primary" id="playAgainBtn">Gioca Ancora</button>
+                    <button class="btn btn-secondary" id="backToMenuBtn">Menu Principale</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/ship.js"></script>
+    <script src="js/grid.js"></script>
+    <script src="js/ai.js"></script>
+    <script src="js/game-engine.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/placement-modes.js"></script>
+    <script src="js/slot-machine.js"></script>
+    <script src="js/peer-multiplayer.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
