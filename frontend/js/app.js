@@ -660,6 +660,9 @@ class BattleshipApp {
     }
 
     async initializePeerMultiplayer(isQuickMatch) {
+        // Salva il roomCode PRIMA di resettare lo stato (per il guest)
+        const savedRoomCode = this.roomCode;
+        
         this.resetOnlineState();
         this.ui.showLoading('Inizializzazione connessione P2P...');
 
@@ -678,6 +681,9 @@ class BattleshipApp {
                 this.startSetup();
             } else {
                 this.isHost = false;
+                
+                // Ripristina il roomCode salvato
+                this.roomCode = savedRoomCode;
                 
                 // Verifica che il roomCode sia valido prima di procedere
                 if (!this.roomCode || this.roomCode.trim() === '') {
