@@ -921,6 +921,12 @@ class BattleshipApp {
 
         if (result.result === 'sunk') {
             this.ui.renderMyShipsList(this.game.playerFleet);
+            
+            // L'avversario ha affondato una nostra nave, mostra il popup dello sconfitto
+            // e notifica l'avversario che può girare la slot machine
+            setTimeout(() => {
+                this.showOpponentSlotMachine();
+            }, 1000);
         }
 
         if (result.result === 'sunk') {
