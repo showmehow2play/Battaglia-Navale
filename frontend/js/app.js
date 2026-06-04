@@ -866,12 +866,11 @@ class BattleshipApp {
                                 this.peerMultiplayer.sendSlotMachineResult(slotResult, result.allShipsSunk);
                             },
                             () => {
-                                // Callback CLOSE: Se tutte le navi sono affondate, chiama endGame ma NON inviare game_over ancora
+                                // Callback CLOSE: Se tutte le navi sono affondate, NON chiamare endGame
+                                // Aspetta che il difensore chiuda la sua slot machine (evento slot_machine_closed)
                                 if (result.allShipsSunk) {
-                                    console.log('🏆 [ATTACCANTE] Tutte le navi affondate! Chiudo slot e aspetto che difensore chiuda la sua...');
-                                    // Chiama endGame con notifyPeer=false per non inviare game_over ancora
-                                    // Il game_over verrà inviato quando riceviamo slot_machine_closed
-                                    this.endGame(true, false);
+                                    console.log('🏆 [ATTACCANTE] Tutte le navi affondate! Aspetto che difensore chiuda slot machine...');
+                                    // Non fare nulla, aspetta slot_machine_closed che chiamerà endGame
                                 } else {
                                     // Se non era l'ultima nave, continua normalmente
                                     console.log('🎰 [ATTACCANTE] Non era ultima nave, continuo');
@@ -1076,11 +1075,9 @@ class BattleshipApp {
         });
 
         this.peerMultiplayer.on('slot_machine_closed', (data) => {
-            // Il difensore ha chiuso la slot machine, ora invio game_over
-            console.log('🏆 [ATTACCANTE] Difensore ha chiuso slot machine, invio game_over');
-            if (this.peerMultiplayer && this.peerMultiplayer.isConnected()) {
-                this.peerMultiplayer.sendGameOver({ winner: 'me' });
-            }
+            // Il difensore ha chiuso la slot machine, ora posso mostrare il game over
+            console.log('🏆 [ATTACCANTE] Difensore ha chiuso slot machine, mostro game over');
+            this.endGame(true, true);
         });
 
         this.peerMultiplayer.on('game_over', (data) => {
@@ -1253,23 +1250,28 @@ class BattleshipApp {
         if (result === 'hit') {
             cell.state = Grid.CELL_STATES.HIT;
         } else if (result === 'sunk') {
-            // FIX: Marca TUTTE le celle della nave come SUNK, non solo quella corrente
+            // FIX: Marca la cella corrente come SUNK
+            cell.state = Grid.CELL_STATES.SUNK;
+            
+            // FIX: Trova TUTTE le celle HIT adiacenti e marcale come SUNK
+            // Questo marca tutte le celle della nave affondata
             if (shipType) {
                 const enemyShip = this.game.opponentFleet.find(s => s.type === shipType);
                 if (enemyShip) {
                     // Marca la nave come completamente affondata
                     enemyShip.hits = new Set(Array(enemyShip.size).fill('x'));
-                    
-                    // Trova tutte le coordinate della nave e marcale come SUNK
-                    const shipCoords = enemyShip.getCoordinates();
-                    shipCoords.forEach(coord => {
-                        const shipCell = this.game.opponentGrid.cells[coord.row][coord.col];
-                        shipCell.state = Grid.CELL_STATES.SUNK;
-                    });
                 }
-            } else {
-                // Fallback: marca solo la cella corrente
-                cell.state = Grid.CELL_STATES.SUNK;
+            }
+            
+            // Cerca tutte le celle HIT nella griglia e marcale come SUNK se fanno parte della stessa nave
+            for (let r = 0; r < Grid.SIZE; r++) {
+                for (let c = 0; c < Grid.SIZE; c++) {
+                    const gridCell = this.game.opponentGrid.cells[r][c];
+                    // Se la cella è HIT e ha una nave dello stesso tipo, marcala come SUNK
+                    if (gridCell.state === Grid.CELL_STATES.HIT && gridCell.ship && gridCell.ship.type === shipType) {
+                        gridCell.state = Grid.CELL_STATES.SUNK;
+                    }
+                }
             }
         } else {
             cell.state = Grid.CELL_STATES.MISS;
@@ -1322,12 +1324,11 @@ class BattleshipApp {
                             }
                         },
                         () => {
-                            // Callback CLOSE: Se tutte le navi sono affondate, chiama endGame ma NON inviare game_over ancora
+                            // Callback CLOSE: Se tutte le navi sono affondate, NON chiamare endGame
+                            // Aspetta che il difensore chiuda la sua slot machine (evento slot_machine_closed)
                             if (allShipsSunk) {
-                                console.log('🏆 [ATTACCANTE] Tutte le navi affondate! Chiudo slot e aspetto che difensore chiuda la sua...');
-                                // Chiama endGame con notifyPeer=false per non inviare game_over ancora
-                                // Il game_over verrà inviato quando riceviamo slot_machine_closed
-                                this.endGame(true, false);
+                                console.log('🏆 [ATTACCANTE] Tutte le navi affondate! Aspetto che difensore chiuda slot machine...');
+                                // Non fare nulla, aspetta slot_machine_closed che chiamerà endGame
                             } else {
                                 // Se non era l'ultima nave, continua normalmente
                                 console.log('🎰 [ATTACCANTE] Non era ultima nave, continuo');
