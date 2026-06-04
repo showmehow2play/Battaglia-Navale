@@ -40,6 +40,12 @@ class UIManager {
             screen.classList.add('active');
             this.currentScreen = screenName;
             
+            // Scroll al top della pagina
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+            
             // Aggiorna il badge della modalità
             this.updateModeBadge(screenName);
             

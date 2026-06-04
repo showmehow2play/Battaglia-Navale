@@ -1221,30 +1221,48 @@ class BattleshipApp {
 
     showOpponentSlotMachine() {
         // Mostra il popup dell'avversario con le scritte che rotano
+        console.log('🎰 showOpponentSlotMachine() chiamato');
         const modal = document.getElementById('opponentSlotModal');
         const reel = document.getElementById('opponentSlotReel');
         const resultDiv = document.getElementById('opponentSlotResult');
         const closeBtn = document.getElementById('closeOpponentSlotBtn');
         
+        console.log('🎰 Modal trovato:', !!modal);
+        console.log('🎰 Reel trovato:', !!reel);
+        
         if (!modal || !reel) {
-            console.error('Elementi del modal avversario non trovati');
+            console.error('❌ Elementi del modal avversario non trovati');
+            console.error('Modal:', modal);
+            console.error('Reel:', reel);
             return;
         }
         
         // Reset e mostra il modal
         resultDiv.style.display = 'none';
         closeBtn.style.display = 'none';
+        reel.classList.remove('stopping');
         reel.classList.add('spinning');
         modal.style.display = 'flex';
         
+        console.log('🎰 Modal display impostato a flex');
+        console.log('🎰 Modal style.display:', modal.style.display);
+        
         // Avvia l'animazione di rotazione delle scritte
         const options = ['Dimmi', 'Dammi', 'Comanda'];
+        
+        // Ferma eventuali intervalli precedenti
+        if (this.opponentSlotInterval) {
+            clearInterval(this.opponentSlotInterval);
+        }
+        
         this.opponentSlotInterval = setInterval(() => {
             const items = reel.querySelectorAll('.slot-item');
             items.forEach(item => {
                 item.textContent = options[Math.floor(Math.random() * 3)];
             });
         }, 100);
+        
+        console.log('🎰 Animazione avviata');
     }
 
     showOpponentSlotResult(result) {
