@@ -1158,7 +1158,6 @@ class BattleshipApp {
             };
         }, 800);
     }
-    }
 
     resetOnlineState(disconnect = true) {
         if (disconnect && this.peerMultiplayer) {
