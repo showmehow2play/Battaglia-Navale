@@ -859,27 +859,33 @@ class BattleshipApp {
                         console.log('🎰 [ATTACCANTE] Invio slot_machine_start all\'avversario');
                         this.peerMultiplayer.sendSlotMachineStart();
                         console.log('🎰 [ATTACCANTE] Evento inviato, mostro slot machine');
-                        window.slotMachineManager.show((slotResult) => {
-                            // Invia il risultato all'avversario
-                            console.log('🎰 [ATTACCANTE] Invio risultato slot machine:', slotResult);
-                            this.peerMultiplayer.sendSlotMachineResult(slotResult);
-                            
-                            // Se tutte le navi sono affondate, mostra il popup di vittoria dopo la slot machine
-                            if (result.allShipsSunk) {
-                                console.log('🏆 Tutte le navi affondate! Mostro popup vittoria dopo slot machine');
-                                this.endGame(true);
+                        window.slotMachineManager.show(
+                            (slotResult) => {
+                                // Callback STOP: Invia il risultato all'avversario
+                                console.log('🎰 [ATTACCANTE] Invio risultato slot machine:', slotResult);
+                                this.peerMultiplayer.sendSlotMachineResult(slotResult);
+                            },
+                            () => {
+                                // Callback CLOSE: Se tutte le navi sono affondate, mostra il popup di vittoria
+                                if (result.allShipsSunk) {
+                                    console.log('🏆 Tutte le navi affondate! Mostro popup vittoria dopo chiusura slot machine');
+                                    this.endGame(true);
+                                }
                             }
-                        });
+                        );
                     } else {
                         // Modalità CPU: mostra solo la slot machine
                         console.log('🎰 Modalità CPU o non connesso, mostro solo slot machine locale');
-                        window.slotMachineManager.show(() => {
-                            // Se tutte le navi sono affondate, mostra il popup di vittoria dopo la slot machine
-                            if (result.allShipsSunk) {
-                                console.log('🏆 Tutte le navi affondate! Mostro popup vittoria dopo slot machine');
-                                this.endGame(true);
+                        window.slotMachineManager.show(
+                            null, // Nessun callback per STOP in modalità CPU
+                            () => {
+                                // Callback CLOSE: Se tutte le navi sono affondate, mostra il popup di vittoria
+                                if (result.allShipsSunk) {
+                                    console.log('🏆 Tutte le navi affondate! Mostro popup vittoria dopo chiusura slot machine');
+                                    this.endGame(true);
+                                }
                             }
-                        });
+                        );
                     }
                 } else {
                     console.error('🎰 slotMachineManager NON TROVATO!');
@@ -1279,22 +1285,25 @@ class BattleshipApp {
                         this.peerMultiplayer.sendSlotMachineStart();
                     }
                     
-                    // Mostra la slot machine con callback per inviare il risultato
-                    window.slotMachineManager.show((extractedResult) => {
-                        console.log('🎰 [ATTACCANTE] Risultato estratto:', extractedResult);
-                        
-                        // Invia il risultato all'avversario
-                        if (this.peerMultiplayer && this.peerMultiplayer.isConnected()) {
-                            console.log('🎰 [ATTACCANTE] Invio risultato all\'avversario:', extractedResult);
-                            this.peerMultiplayer.sendSlotMachineResult(extractedResult);
+                    // Mostra la slot machine con due callback
+                    window.slotMachineManager.show(
+                        (extractedResult) => {
+                            // Callback STOP: Invia il risultato all'avversario
+                            console.log('🎰 [ATTACCANTE] Risultato estratto:', extractedResult);
+                            
+                            if (this.peerMultiplayer && this.peerMultiplayer.isConnected()) {
+                                console.log('🎰 [ATTACCANTE] Invio risultato all\'avversario:', extractedResult);
+                                this.peerMultiplayer.sendSlotMachineResult(extractedResult);
+                            }
+                        },
+                        () => {
+                            // Callback CLOSE: Se tutte le navi sono affondate, mostra il popup di vittoria
+                            if (allShipsSunk) {
+                                console.log('🏆 [ATTACCANTE] Tutte le navi affondate! Mostro popup vittoria dopo chiusura slot machine');
+                                this.endGame(true);
+                            }
                         }
-                        
-                        // FIX 2: Se tutte le navi sono affondate, mostra il popup di vittoria DOPO la slot machine
-                        if (allShipsSunk) {
-                            console.log('🏆 [ATTACCANTE] Tutte le navi affondate! Mostro popup vittoria dopo slot machine');
-                            this.endGame(true);
-                        }
-                    });
+                    );
                 }
             }, 1000);
         } else if (hit) {

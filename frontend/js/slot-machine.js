@@ -13,7 +13,8 @@ class SlotMachineManager {
         this.spinInterval = null;
         this.options = ['Dimmi', 'Dammi', 'Comanda'];
         this.finalResult = null;
-        this.onResultCallback = null; // Callback per notificare il risultato
+        this.onResultCallback = null; // Callback per notificare il risultato quando si preme STOP
+        this.onCloseCallback = null; // Callback per notificare la chiusura del modal
     }
 
     /**
@@ -57,9 +58,10 @@ class SlotMachineManager {
 
     /**
      * Mostra la slot machine
-     * @param {Function} onResult - Callback chiamato quando viene estratto un risultato
+     * @param {Function} onResult - Callback chiamato quando viene estratto un risultato (STOP premuto)
+     * @param {Function} onClose - Callback chiamato quando il modal viene chiuso
      */
-    show(onResult = null) {
+    show(onResult = null, onClose = null) {
         if (!this.modal) {
             this.init();
             if (!this.modal) {
@@ -73,6 +75,7 @@ class SlotMachineManager {
         this.finalResult = null;
         this.spinInterval = null;
         this.onResultCallback = onResult;
+        this.onCloseCallback = onClose;
 
         // Nascondi risultato e pulsante chiudi
         const slotResult = document.getElementById('slotResult');
@@ -237,8 +240,11 @@ class SlotMachineManager {
         this.modal.style.display = 'none';
         this.isSpinning = false;
         
-        // FIX 1: Non chiamare più il callback qui - viene chiamato quando si preme STOP
-        // Il callback è già stato chiamato in stopSlot()
+        // FIX 2: Chiama il callback di chiusura (per endGame se ultima nave)
+        if (this.onCloseCallback && typeof this.onCloseCallback === 'function') {
+            this.onCloseCallback();
+            this.onCloseCallback = null; // Reset callback per evitare chiamate multiple
+        }
     }
 
     /**
