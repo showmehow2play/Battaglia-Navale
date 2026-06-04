@@ -167,8 +167,12 @@ class PeerMultiplayer {
         this.send('slot_machine_start', {});
     }
 
-    sendSlotMachineResult(result) {
-        this.send('slot_machine_result', { result });
+    sendSlotMachineResult(result, isLastShip = false) {
+        this.send('slot_machine_result', { result, isLastShip });
+    }
+
+    sendSlotMachineClosed() {
+        this.send('slot_machine_closed', {});
     }
 
     sendGameOver(payload) {

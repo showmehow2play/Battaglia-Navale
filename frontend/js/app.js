@@ -861,16 +861,19 @@ class BattleshipApp {
                         console.log('🎰 [ATTACCANTE] Evento inviato, mostro slot machine');
                         window.slotMachineManager.show(
                             (slotResult) => {
-                                // Callback STOP: Invia il risultato all'avversario
+                                // Callback STOP: Invia il risultato all'avversario con flag isLastShip
                                 console.log('🎰 [ATTACCANTE] Invio risultato slot machine:', slotResult);
-                                this.peerMultiplayer.sendSlotMachineResult(slotResult);
+                                this.peerMultiplayer.sendSlotMachineResult(slotResult, result.allShipsSunk);
                             },
                             () => {
-                                // Callback CLOSE: Se tutte le navi sono affondate, mostra il popup di vittoria
+                                // Callback CLOSE: Se tutte le navi sono affondate, NON chiamare endGame
+                                // Aspetta che il difensore chiuda la sua slot machine (evento slot_machine_closed)
                                 if (result.allShipsSunk) {
-                                    console.log('🏆 Tutte le navi affondate! Mostro popup vittoria dopo chiusura slot machine');
-                                    // Invia game_over DOPO aver chiuso la slot machine
-                                    this.endGame(true, true);
+                                    console.log('🏆 [ATTACCANTE] Tutte le navi affondate! Aspetto che difensore chiuda slot machine...');
+                                    // Non fare nulla, aspetta slot_machine_closed
+                                } else {
+                                    // Se non era l'ultima nave, continua normalmente
+                                    console.log('🎰 [ATTACCANTE] Non era ultima nave, continuo');
                                 }
                             }
                         );
@@ -1068,26 +1071,19 @@ class BattleshipApp {
         this.peerMultiplayer.on('slot_machine_result', (data) => {
             // L'avversario ha estratto un risultato dalla slot machine
             console.log('🎰🎰🎰 [DIFENSORE] RICEVUTO slot_machine_result:', data.result);
-            this.showOpponentSlotResult(data.result);
+            this.showOpponentSlotResult(data.result, data.isLastShip);
+        });
+
+        this.peerMultiplayer.on('slot_machine_closed', (data) => {
+            // Il difensore ha chiuso la slot machine, ora posso mostrare il game over
+            console.log('🏆 [ATTACCANTE] Difensore ha chiuso slot machine, mostro game over');
+            this.endGame(true, true);
         });
 
         this.peerMultiplayer.on('game_over', (data) => {
-            // FIX: Non chiamare endGame immediatamente, prima chiudi la slot machine dell'avversario se aperta
-            console.log('🏆 Ricevuto game_over, winner:', data.winner);
-            const opponentModal = document.getElementById('opponentSlotModal');
-            
-            // Se il modal della slot machine dell'avversario è aperto, chiudilo e poi chiama endGame
-            if (opponentModal && opponentModal.style.display === 'flex') {
-                console.log('🎰 Slot machine avversario ancora aperta, la chiudo prima di mostrare game over');
-                opponentModal.style.display = 'none';
-                // Aspetta un attimo per dare tempo all'utente di vedere che si chiude
-                setTimeout(() => {
-                    this.endGame(data.winner !== 'me', false);
-                }, 300);
-            } else {
-                // Se non c'è slot machine aperta, chiama endGame direttamente
-                this.endGame(data.winner !== 'me', false);
-            }
+            // Ricevuto game_over dall'attaccante
+            console.log('🏆 [DIFENSORE] Ricevuto game_over, winner:', data.winner);
+            this.endGame(data.winner !== 'me', false);
         });
 
         this.peerMultiplayer.on('disconnected', () => {
@@ -1304,20 +1300,23 @@ class BattleshipApp {
                     // Mostra la slot machine con due callback
                     window.slotMachineManager.show(
                         (extractedResult) => {
-                            // Callback STOP: Invia il risultato all'avversario
+                            // Callback STOP: Invia il risultato all'avversario con flag isLastShip
                             console.log('🎰 [ATTACCANTE] Risultato estratto:', extractedResult);
                             
                             if (this.peerMultiplayer && this.peerMultiplayer.isConnected()) {
                                 console.log('🎰 [ATTACCANTE] Invio risultato all\'avversario:', extractedResult);
-                                this.peerMultiplayer.sendSlotMachineResult(extractedResult);
+                                this.peerMultiplayer.sendSlotMachineResult(extractedResult, allShipsSunk);
                             }
                         },
                         () => {
-                            // Callback CLOSE: Se tutte le navi sono affondate, mostra il popup di vittoria
+                            // Callback CLOSE: Se tutte le navi sono affondate, NON chiamare endGame
+                            // Aspetta che il difensore chiuda la sua slot machine (evento slot_machine_closed)
                             if (allShipsSunk) {
-                                console.log('🏆 [ATTACCANTE] Tutte le navi affondate! Mostro popup vittoria dopo chiusura slot machine');
-                                // Invia game_over DOPO aver chiuso la slot machine
-                                this.endGame(true, true);
+                                console.log('🏆 [ATTACCANTE] Tutte le navi affondate! Aspetto che difensore chiuda slot machine...');
+                                // Non fare nulla, aspetta slot_machine_closed
+                            } else {
+                                // Se non era l'ultima nave, continua normalmente
+                                console.log('🎰 [ATTACCANTE] Non era ultima nave, continuo');
                             }
                         }
                     );
@@ -1461,7 +1460,7 @@ class BattleshipApp {
         console.log('🎰 Animazione avviata');
     }
 
-    showOpponentSlotResult(result) {
+    showOpponentSlotResult(result, isLastShip = false) {
         // Ferma la rotazione e mostra il risultato estratto dall'avversario
         if (this.opponentSlotInterval) {
             clearInterval(this.opponentSlotInterval);
@@ -1504,6 +1503,18 @@ class BattleshipApp {
                 const modal = document.getElementById('opponentSlotModal');
                 if (modal) {
                     modal.style.display = 'none';
+                }
+                
+                // FIX: Se era l'ultima nave, invia evento slot_machine_closed e poi mostra game over
+                if (isLastShip) {
+                    console.log('🏆 [DIFENSORE] Era ultima nave, invio slot_machine_closed e mostro game over');
+                    if (this.peerMultiplayer && this.peerMultiplayer.isConnected()) {
+                        this.peerMultiplayer.sendSlotMachineClosed();
+                    }
+                    // Mostra il popup di sconfitta
+                    setTimeout(() => {
+                        this.endGame(false, false);
+                    }, 300);
                 }
             };
         }, 800);
