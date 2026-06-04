@@ -1288,6 +1288,12 @@ class BattleshipApp {
                             console.log('🎰 [ATTACCANTE] Invio risultato all\'avversario:', extractedResult);
                             this.peerMultiplayer.sendSlotMachineResult(extractedResult);
                         }
+                        
+                        // FIX 2: Se tutte le navi sono affondate, mostra il popup di vittoria DOPO la slot machine
+                        if (allShipsSunk) {
+                            console.log('🏆 [ATTACCANTE] Tutte le navi affondate! Mostro popup vittoria dopo slot machine');
+                            this.endGame(true);
+                        }
                     });
                 }
             }, 1000);
@@ -1299,13 +1305,17 @@ class BattleshipApp {
 
         this.pendingAttack = null;
 
-        if (allShipsSunk) {
-            this.endGame(true);
-            return;
-        }
+        // FIX 2: Non chiamare più endGame qui - viene chiamato nel callback della slot machine
+        // if (allShipsSunk) {
+        //     this.endGame(true);
+        //     return;
+        // }
 
-        this.game.currentTurn = BattleshipGame.TURNS.OPPONENT;
-        this.ui.updateTurnIndicators(false);
+        // Solo se NON tutte le navi sono affondate, cambia turno
+        if (!allShipsSunk) {
+            this.game.currentTurn = BattleshipGame.TURNS.OPPONENT;
+            this.ui.updateTurnIndicators(false);
+        }
     }
 
     sendChatMessage() {

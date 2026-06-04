@@ -152,9 +152,15 @@ class SlotMachineManager {
         // Ferma il reel
         this.stopReel();
 
-        // Dopo che il reel si è fermato, mostra il risultato
+        // Dopo che il reel si è fermato, mostra il risultato E notifica il callback
         setTimeout(() => {
             this.showResult();
+            
+            // FIX 1: Notifica il risultato quando si preme STOP, non alla chiusura del modal
+            if (this.onResultCallback && typeof this.onResultCallback === 'function') {
+                this.onResultCallback(this.finalResult);
+                this.onResultCallback = null; // Reset callback per evitare chiamate multiple
+            }
         }, 800);
     }
 
@@ -231,11 +237,8 @@ class SlotMachineManager {
         this.modal.style.display = 'none';
         this.isSpinning = false;
         
-        // Notifica il risultato tramite callback quando si chiude il modal
-        if (this.onResultCallback && typeof this.onResultCallback === 'function') {
-            this.onResultCallback(this.finalResult);
-            this.onResultCallback = null; // Reset callback per evitare chiamate multiple
-        }
+        // FIX 1: Non chiamare più il callback qui - viene chiamato quando si preme STOP
+        // Il callback è già stato chiamato in stopSlot()
     }
 
     /**
