@@ -14,7 +14,7 @@
     
     <title>Battaglia Navale</title>
     
-    <link rel="stylesheet" href="css/style.css?v=2.1">
+    <link rel="stylesheet" href="css/style.css">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚓</text></svg>">
 </head>
 <body>
@@ -100,103 +100,77 @@
             </div>
         </div>
 
+        <!-- Setup Screen -->
         <div id="setupScreen" class="screen">
             <div class="setup-container">
-                <div class="setup-header">
-                    <h2 class="setup-title">Posiziona le tue navi</h2>
-                    <p class="setup-subtitle">Clicca su una nave e poi sulla griglia per posizionarla</p>
-                    <div id="onlineSetupInfo" class="online-setup-info" style="display: none;">
-                        <strong>Partita live:</strong> condividi il codice
-                        <span id="activeRoomCode" style="font-weight: bold; font-size: 1.2em; color: #6366f1;">-</span>
-                        <button class="btn btn-copy" id="copySetupCodeBtn" title="Copia codice">📋 Copia</button>
-                        con l'altro partecipante
+                <h2 class="setup-title">Posiziona le tue navi</h2>
+                
+                <div class="online-setup-info" id="onlineSetupInfo" style="display: none;">
+                    <div class="room-code-display">
+                        <span>Codice Stanza:</span>
+                        <strong id="activeRoomCode">-</strong>
+                        <button class="btn btn-secondary btn-sm" onclick="app.copyRoomCode('activeRoomCode')">
+                            📋 Copia
+                        </button>
+                    </div>
+                </div>
+
+                <div class="placement-mode-selector">
+                    <button class="btn btn-primary mode-btn active" data-mode="quick">
+                        ⚡ Modalità Rapida
+                    </button>
+                    <button class="btn btn-secondary mode-btn" data-mode="manual">
+                        ✋ Modalità Manuale
+                    </button>
+                </div>
+
+                <div class="mode-description" id="modeDescription">
+                    <p><strong>Modalità Rapida:</strong> Clicca una cella per posizionare la nave selezionata</p>
+                </div>
+
+                <div class="manual-selection-info" id="manualSelectionInfo" style="display: none;">
+                    <div class="selection-counter" id="selectionCounter">0/5 celle selezionate</div>
+                    <div class="selection-hint" id="selectionHint">Seleziona le celle sulla stessa riga o colonna</div>
+                    <div class="manual-actions">
+                        <button class="btn btn-secondary" id="cancelSelectionBtn">Annulla</button>
+                        <button class="btn btn-primary" id="confirmPlacementBtn" disabled>Conferma</button>
                     </div>
                 </div>
 
                 <div class="setup-content">
-                    <div class="ships-panel">
-                        <h3>Flotta Disponibile</h3>
-                        <div id="shipsList" class="ships-selection"></div>
-                        <div class="setup-controls">
+                    <div class="setup-grid-section">
+                        <div id="setupGrid" class="grid grid-large"></div>
+                    </div>
+
+                    <div class="setup-ships-section">
+                        <h3>Flotta</h3>
+                        <ul class="ships-list" id="shipsList"></ul>
+                        
+                        <div class="setup-actions">
                             <button class="btn btn-secondary" id="rotateBtn">
-                                🔄 Ruota Nave
+                                🔄 Ruota
                             </button>
                             <button class="btn btn-secondary" id="randomBtn">
-                                🎲 Posizionamento Casuale
+                                🎲 Casuale
                             </button>
                             <button class="btn btn-primary" id="startGameBtn" disabled>
                                 ▶️ Inizia Partita
                             </button>
                         </div>
                     </div>
-
-                    <div class="setup-grid-container">
-                        <div id="setupGrid" class="grid"></div>
-                        <div class="setup-legend">
-                            <div class="legend-item">
-                                <div class="legend-color" style="background: linear-gradient(135deg, rgba(51, 65, 85, 0.9) 0%, rgba(30, 41, 59, 0.9) 100%);"></div>
-                                <span>Nave posizionata</span>
-                            </div>
-                            <div class="legend-item">
-                                <div class="legend-color" style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);"></div>
-                                <span>Acqua</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="placement-mode-panel">
-                        <h3>Modalità Posizionamento</h3>
-                        <div class="placement-mode-toggle">
-                            <label class="mode-option">
-                                <input type="radio" name="placementMode" value="quick" checked>
-                                <div class="mode-content">
-                                    <span class="mode-icon">⚡</span>
-                                    <div>
-                                        <strong>Rapido</strong>
-                                        <small>1 click, posizionamento automatico</small>
-                                    </div>
-                                </div>
-                            </label>
-                            <label class="mode-option">
-                                <input type="radio" name="placementMode" value="manual">
-                                <div class="mode-content">
-                                    <span class="mode-icon">✋</span>
-                                    <div>
-                                        <strong>Manuale</strong>
-                                        <small>Seleziona ogni cella della nave</small>
-                                    </div>
-                                </div>
-                            </label>
-                        </div>
-                        
-                        <div id="manualModeControls" style="display: none;">
-                            <div class="selection-counter" id="selectionCounter">
-                                0/5 celle selezionate
-                            </div>
-                            <div class="selection-hint" id="selectionHint">
-                                Seleziona le celle sulla stessa riga o colonna
-                            </div>
-                            <div class="manual-controls">
-                                <button class="btn btn-secondary" id="cancelSelectionBtn">
-                                    ❌ Annulla
-                                </button>
-                                <button class="btn btn-primary" id="confirmPlacementBtn" disabled>
-                                    ✓ Conferma Posizionamento
-                                </button>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
 
+        <!-- Game Screen -->
         <div id="gameScreen" class="screen">
             <div class="game-container">
-                <div class="online-status-bar" id="onlineStatusBar" style="display: none;">
-                    <div>
-                        <strong>Codice stanza:</strong>
-                        <span id="gameRoomCode" style="font-weight: bold; font-size: 1.1em; color: #6366f1;">-</span>
-                        <button class="btn btn-copy btn-copy-small" id="copyGameCodeBtn" title="Copia codice">📋</button>
+                <div id="onlineStatusBar" class="online-status-bar" style="display: none;">
+                    <div><strong>Partita Online</strong></div>
+                    <div><strong>Codice:</strong> <span id="gameRoomCode">-</span>
+                        <button class="btn btn-secondary btn-sm" onclick="app.copyRoomCode('gameRoomCode')">
+                            📋
+                        </button>
                     </div>
                     <div><strong>Stato:</strong> <span id="connectionStatus">Connesso</span></div>
                 </div>
@@ -295,6 +269,7 @@
             </div>
         </div>
 
+        <!-- Modals -->
         <div id="privateRoomModal" class="modal" style="display: none;">
             <div class="modal-content">
                 <h2>🔑 Entra in una partita live</h2>
@@ -338,6 +313,7 @@
                 </div>
             </div>
         </div>
+
         <div id="opponentSlotModal" class="modal" style="display: none;">
             <div class="modal-content slot-machine-modal">
                 <h2 class="slot-machine-title">😱 Che disdetta!</h2>
@@ -365,7 +341,6 @@
             </div>
         </div>
 
-
         <div id="gameOverModal" class="modal" style="display: none;">
             <div class="modal-content">
                 <h2 id="gameOverTitle">Partita Terminata</h2>
@@ -383,20 +358,17 @@
 
     <div id="toastContainer" class="toast-container"></div>
 
-    <script>
-        // Timestamp per forzare il ricaricamento dei file JavaScript
-        const cacheBuster = Date.now();
-    </script>
+    <!-- JavaScript files -->
     <script src="js/peerjs.min.js"></script>
-    <script>document.write('<script src="js/utils.js?v=' + cacheBuster + '"><\/script>');</script>
-    <script>document.write('<script src="js/ship.js?v=' + cacheBuster + '"><\/script>');</script>
-    <script>document.write('<script src="js/grid.js?v=' + cacheBuster + '"><\/script>');</script>
-    <script>document.write('<script src="js/ai.js?v=' + cacheBuster + '"><\/script>');</script>
-    <script>document.write('<script src="js/game-engine.js?v=' + cacheBuster + '"><\/script>');</script>
-    <script>document.write('<script src="js/ui.js?v=' + cacheBuster + '"><\/script>');</script>
-    <script>document.write('<script src="js/placement-modes.js?v=' + cacheBuster + '"><\/script>');</script>
-    <script>document.write('<script src="js/slot-machine.js?v=' + cacheBuster + '"><\/script>');</script>
-    <script>document.write('<script src="js/peer-multiplayer.js?v=' + cacheBuster + '"><\/script>');</script>
-    <script>document.write('<script src="js/app.js?v=' + cacheBuster + '"><\/script>');</script>
+    <script src="js/utils.js"></script>
+    <script src="js/ship.js"></script>
+    <script src="js/grid.js"></script>
+    <script src="js/ai.js"></script>
+    <script src="js/game-engine.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/placement-modes.js"></script>
+    <script src="js/slot-machine.js"></script>
+    <script src="js/peer-multiplayer.js"></script>
+    <script src="js/app.js"></script>
 </body>
 </html>
