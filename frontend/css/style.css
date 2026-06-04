@@ -1222,6 +1222,20 @@ main {
     .sidebar {
         grid-row: 1;
     }
+
+    .setup-content {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .setup-ships-section {
+        position: relative;
+        top: 0;
+    }
+
+    .setup-grid-section .grid {
+        max-width: 500px;
+    }
 }
 
 @media (max-width: 768px) {
@@ -1589,16 +1603,24 @@ main {
 
 .setup-content {
     display: grid;
-    grid-template-columns: 1fr 320px;
-    gap: 2rem;
+    grid-template-columns: 1fr 350px;
+    gap: 2.5rem;
     align-items: start;
+    max-width: 1400px;
+    margin: 0 auto;
 }
 
 .setup-grid-section {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     gap: 1rem;
+}
+
+.setup-grid-section .grid {
+    width: 100%;
+    max-width: 600px;
 }
 
 .setup-ships-section {
@@ -1607,19 +1629,26 @@ main {
     padding: 1.5rem;
     border-radius: 20px;
     border: 1px solid rgba(255, 255, 255, 0.15);
+    position: sticky;
+    top: 2rem;
 }
 
 .setup-ships-section h3 {
     font-size: 1.2rem;
     margin-bottom: 1rem;
     color: white;
+    text-align: center;
 }
 
 .setup-actions {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-    margin-top: 1rem;
+    margin-top: 1.5rem;
+}
+
+.setup-actions .btn {
+    width: 100%;
 }
 
 .ships-panel {
