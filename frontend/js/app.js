@@ -286,8 +286,18 @@ class BattleshipApp {
             this.ui.showToast('Cella rimossa dalla selezione', 'info', 1000);
         } else {
             if (this.ui.selectedCells.length < ship.size) {
+                // Verifica preventiva se la cella è valida prima di aggiungerla
+                const tempCells = [...this.ui.selectedCells, { row, col }];
+                const tempValidation = this.validateManualSelectionWithCells(ship, tempCells);
+                
                 this.ui.selectedCells.push({ row, col });
-                this.ui.showToast(`Cella aggiunta (${this.ui.selectedCells.length}/${ship.size})`, 'info', 1000);
+                
+                // Mostra messaggio appropriato
+                if (!tempValidation.valid) {
+                    this.ui.showToast(tempValidation.reason, 'error', 3000);
+                } else {
+                    this.ui.showToast(`Cella aggiunta (${this.ui.selectedCells.length}/${ship.size})`, 'info', 1000);
+                }
             } else {
                 this.ui.showToast(`Massimo ${ship.size} celle per questa nave!`, 'warning');
                 return;
@@ -303,7 +313,7 @@ class BattleshipApp {
         const confirmBtn = document.getElementById('confirmPlacementBtn');
         if (this.ui.selectedCells.length === ship.size && validation.valid) {
             confirmBtn.disabled = false;
-            this.ui.showToast('Selezione valida! Clicca Conferma', 'success', 2000);
+            this.ui.showToast('✅ Selezione valida! Clicca Conferma', 'success', 2000);
         } else {
             confirmBtn.disabled = true;
         }
@@ -313,11 +323,86 @@ class BattleshipApp {
             hintEl.textContent = validation.reason;
             hintEl.style.background = 'rgba(245, 101, 101, 0.15)';
             hintEl.style.borderColor = '#f56565';
+        } else if (this.ui.selectedCells.length > 0 && this.ui.selectedCells.length < ship.size) {
+            hintEl.textContent = `Continua a selezionare (${this.ui.selectedCells.length}/${ship.size})`;
+            hintEl.style.background = 'rgba(16, 185, 129, 0.15)';
+            hintEl.style.borderColor = '#10b981';
         } else {
             hintEl.textContent = 'Seleziona le celle sulla stessa riga o colonna';
             hintEl.style.background = 'rgba(255, 193, 7, 0.15)';
             hintEl.style.borderColor = '#ffc107';
         }
+    }
+
+    // Funzione helper per validare con un set temporaneo di celle
+    validateManualSelectionWithCells(ship, cells) {
+        if (cells.length === 0) {
+            return { valid: true, reason: '' };
+        }
+
+        const rows = cells.map(c => c.row);
+        const cols = cells.map(c => c.col);
+        const sameRow = rows.every(r => r === rows[0]);
+        const sameCol = cols.every(c => c === cols[0]);
+
+        if (cells.length > 1 && !sameRow && !sameCol) {
+            return { valid: false, reason: '❌ Le celle devono essere sulla stessa riga o colonna' };
+        }
+
+        if (cells.length > 1) {
+            if (sameRow) {
+                const sortedCols = [...cols].sort((a, b) => a - b);
+                for (let i = 1; i < sortedCols.length; i++) {
+                    if (sortedCols[i] !== sortedCols[i - 1] + 1) {
+                        return { valid: false, reason: '❌ Le celle devono essere contigue (senza buchi)' };
+                    }
+                }
+            } else {
+                const sortedRows = [...rows].sort((a, b) => a - b);
+                for (let i = 1; i < sortedRows.length; i++) {
+                    if (sortedRows[i] !== sortedRows[i - 1] + 1) {
+                        return { valid: false, reason: '❌ Le celle devono essere contigue (senza buchi)' };
+                    }
+                }
+            }
+        }
+
+        // Controlla sovrapposizione diretta
+        for (const cell of cells) {
+            const gridCell = this.game.playerGrid.cells[cell.row][cell.col];
+            if (gridCell.ship) {
+                return { valid: false, reason: '❌ Sovrapposizione: questa cella è già occupata da un\'altra nave!' };
+            }
+        }
+
+        // Controlla celle adiacenti
+        for (const cell of cells) {
+            const adjacentPositions = [
+                { row: cell.row - 1, col: cell.col - 1 },
+                { row: cell.row - 1, col: cell.col },
+                { row: cell.row - 1, col: cell.col + 1 },
+                { row: cell.row, col: cell.col - 1 },
+                { row: cell.row, col: cell.col + 1 },
+                { row: cell.row + 1, col: cell.col - 1 },
+                { row: cell.row + 1, col: cell.col },
+                { row: cell.row + 1, col: cell.col + 1 }
+            ];
+
+            for (const pos of adjacentPositions) {
+                if (pos.row >= 0 && pos.row < 10 && pos.col >= 0 && pos.col < 10) {
+                    const adjacentCell = this.game.playerGrid.cells[pos.row][pos.col];
+                    if (adjacentCell.ship) {
+                        const coordinate = String.fromCharCode(65 + cell.row) + (cell.col + 1);
+                        return {
+                            valid: false,
+                            reason: `⚠️ Troppo vicino: la cella ${coordinate} è adiacente a un'altra nave! Le navi devono avere almeno una cella di distanza.`
+                        };
+                    }
+                }
+            }
+        }
+
+        return { valid: true, reason: '' };
     }
 
     validateManualSelection(ship) {
@@ -356,10 +441,39 @@ class BattleshipApp {
             }
         }
 
+        // Controlla sovrapposizione diretta
         for (const cell of cells) {
             const gridCell = this.game.playerGrid.cells[cell.row][cell.col];
             if (gridCell.ship) {
-                return { valid: false, reason: 'Sovrapposizione con altra nave' };
+                return { valid: false, reason: '❌ Sovrapposizione: questa cella è già occupata da un\'altra nave!' };
+            }
+        }
+
+        // Controlla celle adiacenti (le navi non possono toccarsi)
+        for (const cell of cells) {
+            const adjacentPositions = [
+                { row: cell.row - 1, col: cell.col - 1 }, // diagonale alto-sinistra
+                { row: cell.row - 1, col: cell.col },     // sopra
+                { row: cell.row - 1, col: cell.col + 1 }, // diagonale alto-destra
+                { row: cell.row, col: cell.col - 1 },     // sinistra
+                { row: cell.row, col: cell.col + 1 },     // destra
+                { row: cell.row + 1, col: cell.col - 1 }, // diagonale basso-sinistra
+                { row: cell.row + 1, col: cell.col },     // sotto
+                { row: cell.row + 1, col: cell.col + 1 }  // diagonale basso-destra
+            ];
+
+            for (const pos of adjacentPositions) {
+                // Verifica che la posizione sia valida nella griglia
+                if (pos.row >= 0 && pos.row < 10 && pos.col >= 0 && pos.col < 10) {
+                    const adjacentCell = this.game.playerGrid.cells[pos.row][pos.col];
+                    if (adjacentCell.ship) {
+                        const coordinate = String.fromCharCode(65 + cell.row) + (cell.col + 1);
+                        return {
+                            valid: false,
+                            reason: `⚠️ Troppo vicino: la cella ${coordinate} è adiacente a un'altra nave! Le navi devono avere almeno una cella di distanza.`
+                        };
+                    }
+                }
             }
         }
 
@@ -449,14 +563,30 @@ class BattleshipApp {
     }
 
     setupDualModeListeners() {
-        document.querySelectorAll('input[name="placementMode"]').forEach(radio => {
-            radio.addEventListener('change', (e) => {
-                this.ui.placementMode = e.target.value;
+        // Listener per i pulsanti di modalità posizionamento
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const mode = e.target.dataset.mode;
+                if (!mode) return;
+                
+                // Aggiorna lo stato visivo dei pulsanti
+                document.querySelectorAll('.mode-btn').forEach(b => {
+                    b.classList.remove('active', 'btn-primary');
+                    b.classList.add('btn-secondary');
+                });
+                e.target.classList.remove('btn-secondary');
+                e.target.classList.add('active', 'btn-primary');
+                
+                // Aggiorna la modalità
+                this.ui.placementMode = mode;
                 this.ui.selectedCells = [];
 
-                const manualControls = document.getElementById('manualModeControls');
-                if (e.target.value === 'manual') {
-                    manualControls.style.display = 'block';
+                const manualSelectionInfo = document.getElementById('manualSelectionInfo');
+                const modeDescription = document.getElementById('modeDescription');
+                
+                if (mode === 'manual') {
+                    manualSelectionInfo.style.display = 'block';
+                    modeDescription.innerHTML = '<p><strong>Modalità Manuale:</strong> Seleziona manualmente ogni cella della nave (clicca per selezionare/deselezionare)</p>';
                     this.ui.showToast('Modalità Manuale: seleziona ogni cella della nave', 'info', 3000);
 
                     if (this.ui.selectedShip !== null && this.game && this.game.playerFleet) {
@@ -464,7 +594,8 @@ class BattleshipApp {
                         document.getElementById('selectionCounter').textContent = `0/${ship.size} celle selezionate`;
                     }
                 } else {
-                    manualControls.style.display = 'none';
+                    manualSelectionInfo.style.display = 'none';
+                    modeDescription.innerHTML = '<p><strong>Modalità Rapida:</strong> Clicca una cella per posizionare la nave selezionata</p>';
                     this.ui.showToast('Modalità Rapida: 1 click per posizionare', 'info', 2000);
                 }
 
