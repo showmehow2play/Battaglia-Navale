@@ -1181,17 +1181,9 @@ class BattleshipApp {
         if (result.result === 'sunk') {
             this.ui.showToast(`Avversario ${coordinate}: ${result.ship.name} affondata! 💥`, 'error');
             
-            // Mostra la slot machine dell'avversario quando affonda una tua nave (multiplayer)
-            console.log('🎰 [MULTIPLAYER] Nave affondata dall\'avversario, mostro slot machine...');
-            this.showOpponentSlotMachine();
-            
-            // Simula l'estrazione del risultato dopo 3 secondi
-            setTimeout(() => {
-                const options = ['Dimmi', 'Dammi', 'Comanda'];
-                const randomResult = options[Math.floor(Math.random() * 3)];
-                console.log('🎰 [MULTIPLAYER] Risultato estratto:', randomResult);
-                this.showOpponentSlotResult(randomResult);
-            }, 3000);
+            // NON mostrare la slot machine qui - verrà mostrata quando riceviamo 'slot_machine_start'
+            // Il risultato arriverà tramite 'slot_machine_result' dall'avversario
+            console.log('🎰 [DIFENSORE] Nave affondata, in attesa di slot_machine_start dall\'avversario...');
         } else if (hit) {
             this.ui.showToast(`Avversario ${coordinate}: Colpito! ✕`, 'error');
         } else {
@@ -1258,9 +1250,28 @@ class BattleshipApp {
         if (result === 'sunk') {
             this.ui.showToast(`${coordinate}: Nave affondata! 💥`, 'success');
             this.ui.renderEnemyShipsList(this.game.opponentFleet);
+            
+            // Mostra la slot machine e invia il risultato all'avversario
             setTimeout(() => {
                 if (window.slotMachineManager) {
-                    window.slotMachineManager.show();
+                    console.log('🎰 [ATTACCANTE] Mostro slot machine per nave affondata');
+                    
+                    // Invia notifica all'avversario che sta per vedere la slot machine
+                    if (this.peerMultiplayer && this.peerMultiplayer.isConnected()) {
+                        console.log('🎰 [ATTACCANTE] Invio slot_machine_start all\'avversario');
+                        this.peerMultiplayer.sendSlotMachineStart();
+                    }
+                    
+                    // Mostra la slot machine con callback per inviare il risultato
+                    window.slotMachineManager.show((extractedResult) => {
+                        console.log('🎰 [ATTACCANTE] Risultato estratto:', extractedResult);
+                        
+                        // Invia il risultato all'avversario
+                        if (this.peerMultiplayer && this.peerMultiplayer.isConnected()) {
+                            console.log('🎰 [ATTACCANTE] Invio risultato all\'avversario:', extractedResult);
+                            this.peerMultiplayer.sendSlotMachineResult(extractedResult);
+                        }
+                    });
                 }
             }, 1000);
         } else if (hit) {
