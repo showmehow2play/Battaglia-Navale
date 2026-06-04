@@ -746,25 +746,35 @@ class BattleshipApp {
         this.setupAttackClickHandler();
 
         if (result.result === 'sunk') {
+            console.log('🎰🎰🎰 NAVE AFFONDATA! 🎰🎰🎰');
+            console.log('gameMode:', this.gameMode);
+            console.log('peerMultiplayer exists:', !!this.peerMultiplayer);
+            console.log('isConnected:', this.peerMultiplayer ? this.peerMultiplayer.isConnected() : 'N/A');
+            
             this.ui.renderEnemyShipsList(this.game.opponentFleet);
             this.ui.showToast(`${coordinate}: ${result.ship.name} affondata! 💥`, 'success');
             
             // Mostra la slot machine quando si affonda una nave
             setTimeout(() => {
+                console.log('🎰 Timeout eseguito, slotMachineManager exists:', !!window.slotMachineManager);
                 if (window.slotMachineManager) {
                     // In modalità online, notifica l'avversario e passa callback
                     if (this.gameMode === 'online' && this.peerMultiplayer && this.peerMultiplayer.isConnected()) {
-                        console.log('🎰 Invio slot_machine_start all\'avversario');
+                        console.log('🎰 [ATTACCANTE] Invio slot_machine_start all\'avversario');
                         this.peerMultiplayer.sendSlotMachineStart();
+                        console.log('🎰 [ATTACCANTE] Evento inviato, mostro slot machine');
                         window.slotMachineManager.show((result) => {
                             // Invia il risultato all'avversario
-                            console.log('🎰 Invio risultato slot machine:', result);
+                            console.log('🎰 [ATTACCANTE] Invio risultato slot machine:', result);
                             this.peerMultiplayer.sendSlotMachineResult(result);
                         });
                     } else {
                         // Modalità CPU: mostra solo la slot machine
+                        console.log('🎰 Modalità CPU o non connesso, mostro solo slot machine locale');
                         window.slotMachineManager.show();
                     }
+                } else {
+                    console.error('🎰 slotMachineManager NON TROVATO!');
                 }
             }, 1000);
         } else if (result.result === 'hit') {
@@ -917,13 +927,15 @@ class BattleshipApp {
 
         this.peerMultiplayer.on('slot_machine_start', () => {
             // L'avversario ha affondato una nostra nave e sta per girare la slot machine
-            console.log('🎰 Ricevuto slot_machine_start, mostro popup avversario');
+            console.log('🎰🎰🎰 [DIFENSORE] RICEVUTO slot_machine_start! 🎰🎰🎰');
+            console.log('🎰 [DIFENSORE] Chiamo showOpponentSlotMachine()');
             this.showOpponentSlotMachine();
+            console.log('🎰 [DIFENSORE] showOpponentSlotMachine() completato');
         });
 
         this.peerMultiplayer.on('slot_machine_result', (data) => {
             // L'avversario ha estratto un risultato dalla slot machine
-            console.log('🎰 Ricevuto risultato slot machine:', data.result);
+            console.log('🎰🎰🎰 [DIFENSORE] RICEVUTO slot_machine_result:', data.result);
             this.showOpponentSlotResult(data.result);
         });
 
