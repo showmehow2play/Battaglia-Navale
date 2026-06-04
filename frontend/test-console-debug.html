@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Console Debug - Battaglia Navale</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1a1a2e;
+            color: #eee;
+        }
+        h1 {
+            color: #6366f1;
+        }
+        .info-box {
+            background: #16213e;
+            border: 2px solid #6366f1;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .console-output {
+            background: #0f0f23;
+            border: 1px solid #333;
+            border-radius: 4px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+            border-left: 3px solid #6366f1;
+            padding-left: 10px;
+        }
+        .log-error {
+            border-left-color: #ef4444;
+            color: #fca5a5;
+        }
+        .log-warning {
+            border-left-color: #f59e0b;
+            color: #fcd34d;
+        }
+        .log-success {
+            border-left-color: #10b981;
+            color: #86efac;
+        }
+        button {
+            background: #6366f1;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #4f46e5;
+        }
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 4px;
+            margin-left: 10px;
+            font-weight: bold;
+        }
+        .status-ok {
+            background: #10b981;
+            color: white;
+        }
+        .status-error {
+            background: #ef4444;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Test Console Debug - Battaglia Navale</h1>
+    
+    <div class="info-box">
+        <h2>Stato Caricamento File JavaScript</h2>
+        <p>Questa pagina verifica che tutti i file JavaScript vengano caricati correttamente.</p>
+        <div id="loadStatus"></div>
+    </div>
+
+    <div class="info-box">
+        <h2>Console Output</h2>
+        <button onclick="clearConsole()">🗑️ Pulisci Console</button>
+        <button onclick="testApp()">🧪 Test Inizializzazione App</button>
+        <button onclick="location.reload()">🔄 Ricarica Pagina</button>
+        <div id="consoleOutput" class="console-output"></div>
+    </div>
+
+    <div class="info-box">
+        <h2>Informazioni Browser</h2>
+        <div id="browserInfo"></div>
+    </div>
+
+    <!-- Carica tutti i file JavaScript nell'ordine corretto -->
+    <script src="js/peerjs.min.js?v=3"></script>
+    <script src="js/utils.js?v=3"></script>
+    <script src="js/ship.js?v=3"></script>
+    <script src="js/grid.js?v=3"></script>
+    <script src="js/ai.js?v=3"></script>
+    <script src="js/game-engine.js?v=3"></script>
+    <script src="js/ui.js?v=3"></script>
+    <script src="js/placement-modes.js?v=3"></script>
+    <script src="js/slot-machine.js?v=3"></script>
+    <script src="js/peer-multiplayer.js?v=3"></script>
+    <script src="js/app.js?v=3"></script>
+
+    <script>
+        // Intercetta i log della console
+        const consoleOutput = document.getElementById('consoleOutput');
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+
+        function addLogEntry(message, type = 'log') {
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            consoleOutput.appendChild(entry);
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            addLogEntry(args.join(' '), 'success');
+        };
+
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            addLogEntry('ERROR: ' + args.join(' '), 'error');
+        };
+
+        console.warn = function(...args) {
+            originalWarn.apply(console, args);
+            addLogEntry('WARNING: ' + args.join(' '), 'warning');
+        };
+
+        function clearConsole() {
+            consoleOutput.innerHTML = '';
+            addLogEntry('Console pulita', 'success');
+        }
+
+        function testApp() {
+            addLogEntry('Inizio test inizializzazione...', 'success');
+            
+            try {
+                // Verifica che le classi esistano
+                const checks = [
+                    { name: 'Utils', obj: typeof Utils !== 'undefined' },
+                    { name: 'Ship', obj: typeof Ship !== 'undefined' },
+                    { name: 'Grid', obj: typeof Grid !== 'undefined' },
+                    { name: 'BattleshipGame', obj: typeof BattleshipGame !== 'undefined' },
+                    { name: 'UIManager', obj: typeof UIManager !== 'undefined' },
+                    { name: 'SlotMachineManager', obj: typeof SlotMachineManager !== 'undefined' },
+                    { name: 'PeerMultiplayer', obj: typeof PeerMultiplayer !== 'undefined' },
+                    { name: 'BattleshipApp', obj: typeof BattleshipApp !== 'undefined' },
+                    { name: 'window.app', obj: typeof window.app !== 'undefined' }
+                ];
+
+                checks.forEach(check => {
+                    if (check.obj) {
+                        addLogEntry(`✓ ${check.name} caricato correttamente`, 'success');
+                    } else {
+                        addLogEntry(`✗ ${check.name} NON trovato!`, 'error');
+                    }
+                });
+
+                if (window.app) {
+                    addLogEntry('✓ App inizializzata correttamente!', 'success');
+                    addLogEntry(`Modalità corrente: ${window.app.gameMode || 'nessuna'}`, 'success');
+                } else {
+                    addLogEntry('✗ App NON inizializzata!', 'error');
+                }
+
+            } catch (error) {
+                addLogEntry(`ERRORE durante il test: ${error.message}`, 'error');
+                console.error(error);
+            }
+        }
+
+        // Mostra informazioni browser
+        document.getElementById('browserInfo').innerHTML = `
+            <p><strong>User Agent:</strong> ${navigator.userAgent}</p>
+            <p><strong>Lingua:</strong> ${navigator.language}</p>
+            <p><strong>Online:</strong> ${navigator.onLine ? 'Sì' : 'No'}</p>
+            <p><strong>Cookies abilitati:</strong> ${navigator.cookieEnabled ? 'Sì' : 'No'}</p>
+        `;
+
+        // Verifica caricamento file al caricamento della pagina
+        window.addEventListener('load', () => {
+            addLogEntry('Pagina caricata completamente', 'success');
+            
+            setTimeout(() => {
+                const loadStatus = document.getElementById('loadStatus');
+                const files = [
+                    'Utils', 'Ship', 'Grid', 'BattleshipGame', 
+                    'UIManager', 'SlotMachineManager', 'PeerMultiplayer', 
+                    'BattleshipApp'
+                ];
+                
+                let html = '<ul>';
+                files.forEach(file => {
+                    const loaded = typeof window[file] !== 'undefined';
+                    const status = loaded ? 
+                        '<span class="status status-ok">✓ OK</span>' : 
+                        '<span class="status status-error">✗ ERRORE</span>';
+                    html += `<li>${file} ${status}</li>`;
+                });
+                html += '</ul>';
+                loadStatus.innerHTML = html;
+
+                // Test automatico
+                testApp();
+            }, 500);
+        });
+
+        // Cattura errori globali
+        window.addEventListener('error', (event) => {
+            addLogEntry(`ERRORE GLOBALE: ${event.message} in ${event.filename}:${event.lineno}`, 'error');
+        });
+
+        addLogEntry('Sistema di debug inizializzato', 'success');
+    </script>
+</body>
+</html>

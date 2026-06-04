@@ -3,6 +3,8 @@
  * Versione con un solo rullo e pulsante START/STOP
  */
 
+console.log('📦 Caricamento slot-machine.js...');
+
 class SlotMachineManager {
     constructor() {
         this.modal = null;

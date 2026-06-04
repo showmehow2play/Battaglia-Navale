@@ -1,9 +1,11 @@
 /**
  * Utility Functions - Funzioni di utilità per il gioco
- * 
+ *
  * @module utils
  * @description Funzioni helper comuni utilizzate in tutto il progetto
  */
+
+console.log('📦 Caricamento utils.js...');
 
 const Utils = {
     /**

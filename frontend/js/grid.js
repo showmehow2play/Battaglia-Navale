@@ -1,9 +1,11 @@
 /**
  * Grid Class - Rappresenta una griglia di gioco 10x10
- * 
+ *
  * @class Grid
  * @description Gestisce il posizionamento delle navi e il tracking dei colpi
  */
+
+console.log('📦 Caricamento grid.js...');
 
 class Grid {
     /**

@@ -3,43 +3,77 @@
  * Collega UI Manager, Game Engine, AI e PeerJS per multiplayer P2P
  */
 
+console.log('📦 Caricamento app.js...');
+
 class BattleshipApp {
     constructor() {
-        this.ui = new UIManager();
-        this.game = null;
-        this.aiManager = null;
-        this.peerMultiplayer = null;
-        this.gameMode = null;
-        this.difficulty = null;
-        this.roomCode = null;
-        this.isHost = false;
-        this.chatEnabled = true; // Default: chat abilitata
-        this.opponentReady = false;
-        this.onlineGameStarted = false;
-        this.pendingAttack = null;
-        this.opponentSlotInterval = null;
-        this.stats = {
-            shots: 0,
-            hits: 0,
-            misses: 0
-        };
-        this.enemyStats = {
-            shots: 0,
-            hits: 0,
-            misses: 0
-        };
+        console.log('🔨 Costruttore BattleshipApp chiamato');
+        
+        try {
+            console.log('  → Creazione UIManager...');
+            this.ui = new UIManager();
+            console.log('  ✓ UIManager creato');
+            
+            this.game = null;
+            this.aiManager = null;
+            this.peerMultiplayer = null;
+            this.gameMode = null;
+            this.difficulty = null;
+            this.roomCode = null;
+            this.isHost = false;
+            this.chatEnabled = true; // Default: chat abilitata
+            this.opponentReady = false;
+            this.onlineGameStarted = false;
+            this.pendingAttack = null;
+            this.opponentSlotInterval = null;
+            this.stats = {
+                shots: 0,
+                hits: 0,
+                misses: 0
+            };
+            this.enemyStats = {
+                shots: 0,
+                hits: 0,
+                misses: 0
+            };
+            
+            console.log('✓ Costruttore BattleshipApp completato');
+        } catch (error) {
+            console.error('❌ ERRORE nel costruttore BattleshipApp:', error);
+            throw error;
+        }
     }
 
     init() {
         console.log('🚢 Battaglia Navale - Inizializzazione...');
 
-        this.ui.init();
-        this.setupMenuListeners();
-        this.setupSetupListeners();
-        this.setupGameListeners();
-        this.setupModalListeners();
+        try {
+            console.log('  → Inizializzazione UI...');
+            this.ui.init();
+            console.log('  ✓ UI inizializzata');
+            
+            console.log('  → Setup menu listeners...');
+            this.setupMenuListeners();
+            console.log('  ✓ Menu listeners configurati');
+            
+            console.log('  → Setup setup listeners...');
+            this.setupSetupListeners();
+            console.log('  ✓ Setup listeners configurati');
+            
+            console.log('  → Setup game listeners...');
+            this.setupGameListeners();
+            console.log('  ✓ Game listeners configurati');
+            
+            console.log('  → Setup modal listeners...');
+            this.setupModalListeners();
+            console.log('  ✓ Modal listeners configurati');
 
-        console.log('✓ Applicazione inizializzata');
+            console.log('✓ Applicazione inizializzata');
+        } catch (error) {
+            console.error('❌ ERRORE durante init():', error);
+            console.error('Stack:', error.stack);
+            throw error;
+        }
     }
 
     setupMenuListeners() {
@@ -73,32 +107,41 @@ class BattleshipApp {
     }
 
     setupSetupListeners() {
-        document.getElementById('rotateBtn').addEventListener('click', () => {
-            // Cambia l'orientamento globale per i nuovi posizionamenti
-            this.ui.isHorizontal = !this.ui.isHorizontal;
-            
-            // Se c'è una nave selezionata e non è ancora posizionata, ruotala
-            if (this.ui.selectedShip !== null && this.game && this.game.playerFleet) {
-                const ship = this.game.playerFleet[this.ui.selectedShip];
-                if (ship && !ship.placed) {
-                    ship.rotate();
+        const rotateBtn = document.getElementById('rotateBtn');
+        if (rotateBtn) {
+            rotateBtn.addEventListener('click', () => {
+                // Cambia l'orientamento globale per i nuovi posizionamenti
+                this.ui.isHorizontal = !this.ui.isHorizontal;
+                
+                // Se c'è una nave selezionata e non è ancora posizionata, ruotala
+                if (this.ui.selectedShip !== null && this.game && this.game.playerFleet) {
+                    const ship = this.game.playerFleet[this.ui.selectedShip];
+                    if (ship && !ship.placed) {
+                        ship.rotate();
+                    }
                 }
-            }
-            
-            this.ui.showToast(
-                `Orientamento: ${this.ui.isHorizontal ? 'Orizzontale' : 'Verticale'}`,
-                'info',
-                1500
-            );
-        });
+                
+                this.ui.showToast(
+                    `Orientamento: ${this.ui.isHorizontal ? 'Orizzontale' : 'Verticale'}`,
+                    'info',
+                    1500
+                );
+            });
+        }
 
-        document.getElementById('randomBtn').addEventListener('click', () => {
-            this.randomPlacement();
-        });
+        const randomBtn = document.getElementById('randomBtn');
+        if (randomBtn) {
+            randomBtn.addEventListener('click', () => {
+                this.randomPlacement();
+            });
+        }
 
-        document.getElementById('startGameBtn').addEventListener('click', () => {
-            this.startGame();
-        });
+        const startGameBtn = document.getElementById('startGameBtn');
+        if (startGameBtn) {
+            startGameBtn.addEventListener('click', () => {
+                this.startGame();
+            });
+        }
 
         // Copy button for setup screen
         const copySetupCodeBtn = document.getElementById('copySetupCodeBtn');
@@ -112,21 +155,30 @@ class BattleshipApp {
     }
 
     setupGameListeners() {
-        document.getElementById('surrenderBtn').addEventListener('click', () => {
-            if (confirm('Sei sicuro di volerti arrendere?')) {
-                this.endGame(false);
-            }
-        });
+        const surrenderBtn = document.getElementById('surrenderBtn');
+        if (surrenderBtn) {
+            surrenderBtn.addEventListener('click', () => {
+                if (confirm('Sei sicuro di volerti arrendere?')) {
+                    this.endGame(false);
+                }
+            });
+        }
 
-        document.getElementById('sendChatBtn').addEventListener('click', () => {
-            this.sendChatMessage();
-        });
-
-        document.getElementById('chatInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
+        const sendChatBtn = document.getElementById('sendChatBtn');
+        if (sendChatBtn) {
+            sendChatBtn.addEventListener('click', () => {
                 this.sendChatMessage();
-            }
-        });
+            });
+        }
+
+        const chatInput = document.getElementById('chatInput');
+        if (chatInput) {
+            chatInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    this.sendChatMessage();
+                }
+            });
+        }
 
         // Copy button for game screen
         const copyGameCodeBtn = document.getElementById('copyGameCodeBtn');
@@ -138,34 +190,47 @@ class BattleshipApp {
     }
 
     setupModalListeners() {
-        document.getElementById('cancelRoomBtn').addEventListener('click', () => {
-            this.ui.hideModal('privateRoomModal');
-        });
+        const cancelRoomBtn = document.getElementById('cancelRoomBtn');
+        if (cancelRoomBtn) {
+            cancelRoomBtn.addEventListener('click', () => {
+                this.ui.hideModal('privateRoomModal');
+            });
+        }
 
-        document.getElementById('joinRoomBtn').addEventListener('click', () => {
-            const roomCode = document.getElementById('roomCodeInput').value.trim();
-            if (!roomCode) {
-                this.ui.showToast('Inserisci un codice stanza valido', 'warning');
-                return;
-            }
+        const joinRoomBtn = document.getElementById('joinRoomBtn');
+        if (joinRoomBtn) {
+            joinRoomBtn.addEventListener('click', () => {
+                const roomCodeInput = document.getElementById('roomCodeInput');
+                const roomCode = roomCodeInput ? roomCodeInput.value.trim() : '';
+                if (!roomCode) {
+                    this.ui.showToast('Inserisci un codice stanza valido', 'warning');
+                    return;
+                }
 
-            this.roomCode = roomCode;
-            this.gameMode = 'online';
-            this.ui.hideModal('privateRoomModal');
-            this.initializePeerMultiplayer(false);
-        });
+                this.roomCode = roomCode;
+                this.gameMode = 'online';
+                this.ui.hideModal('privateRoomModal');
+                this.initializePeerMultiplayer(false);
+            });
+        }
 
-        document.getElementById('playAgainBtn').addEventListener('click', () => {
-            this.ui.hideModal('gameOverModal');
-            this.resetOnlineState();
-            this.ui.showScreen('menu');
-        });
+        const playAgainBtn = document.getElementById('playAgainBtn');
+        if (playAgainBtn) {
+            playAgainBtn.addEventListener('click', () => {
+                this.ui.hideModal('gameOverModal');
+                this.resetOnlineState();
+                this.ui.showScreen('menu');
+            });
+        }
 
-        document.getElementById('backToMenuBtn').addEventListener('click', () => {
-            this.ui.hideModal('gameOverModal');
-            this.resetOnlineState();
-            this.ui.showScreen('menu');
-        });
+        const backToMenuBtn = document.getElementById('backToMenuBtn');
+        if (backToMenuBtn) {
+            backToMenuBtn.addEventListener('click', () => {
+                this.ui.hideModal('gameOverModal');
+                this.resetOnlineState();
+                this.ui.showScreen('menu');
+            });
+        }
     }
 
     startSetup() {
@@ -507,8 +572,16 @@ class BattleshipApp {
         this.setupGridClickHandler();
 
         const ship = this.game.playerFleet[this.ui.selectedShip];
-        document.getElementById('selectionCounter').textContent = `0/${ship ? ship.size : 5} celle selezionate`;
-        document.getElementById('confirmPlacementBtn').disabled = true;
+        const selectionCounter = document.getElementById('selectionCounter');
+        if (selectionCounter) {
+            selectionCounter.textContent = `0/${ship ? ship.size : 5} celle selezionate`;
+        }
+        
+        const confirmPlacementBtn = document.getElementById('confirmPlacementBtn');
+        if (confirmPlacementBtn) {
+            confirmPlacementBtn.disabled = true;
+        }
+        
         this.ui.showToast('Selezione annullata', 'info');
     }
 
@@ -545,16 +618,28 @@ class BattleshipApp {
                 this.ui.selectedShip = nextShipIndex;
                 this.ui.selectShip(nextShipIndex, this.game.playerFleet);
                 const nextShip = this.game.playerFleet[nextShipIndex];
-                document.getElementById('selectionCounter').textContent = `0/${nextShip.size} celle selezionate`;
+                const selectionCounter = document.getElementById('selectionCounter');
+                if (selectionCounter) {
+                    selectionCounter.textContent = `0/${nextShip.size} celle selezionate`;
+                }
             } else {
                 this.ui.selectedShip = null;
-                document.getElementById('selectionCounter').textContent = '0/5 celle selezionate';
+                const selectionCounter = document.getElementById('selectionCounter');
+                if (selectionCounter) {
+                    selectionCounter.textContent = '0/5 celle selezionate';
+                }
             }
 
-            document.getElementById('confirmPlacementBtn').disabled = true;
+            const confirmPlacementBtn = document.getElementById('confirmPlacementBtn');
+            if (confirmPlacementBtn) {
+                confirmPlacementBtn.disabled = true;
+            }
 
             if (this.game.areAllPlayerShipsPlaced()) {
-                document.getElementById('startGameBtn').disabled = false;
+                const startGameBtn = document.getElementById('startGameBtn');
+                if (startGameBtn) {
+                    startGameBtn.disabled = false;
+                }
                 this.ui.showToast('Tutte le navi posizionate! Pronto per iniziare.', 'success');
             }
         } else {
@@ -585,17 +670,18 @@ class BattleshipApp {
                 const modeDescription = document.getElementById('modeDescription');
                 
                 if (mode === 'manual') {
-                    manualSelectionInfo.style.display = 'block';
-                    modeDescription.innerHTML = '<p><strong>Modalità Manuale:</strong> Seleziona manualmente ogni cella della nave (clicca per selezionare/deselezionare)</p>';
+                    if (manualSelectionInfo) manualSelectionInfo.style.display = 'block';
+                    if (modeDescription) modeDescription.innerHTML = '<p><strong>Modalità Manuale:</strong> Seleziona manualmente ogni cella della nave (clicca per selezionare/deselezionare)</p>';
                     this.ui.showToast('Modalità Manuale: seleziona ogni cella della nave', 'info', 3000);
 
                     if (this.ui.selectedShip !== null && this.game && this.game.playerFleet) {
                         const ship = this.game.playerFleet[this.ui.selectedShip];
-                        document.getElementById('selectionCounter').textContent = `0/${ship.size} celle selezionate`;
+                        const selectionCounter = document.getElementById('selectionCounter');
+                        if (selectionCounter) selectionCounter.textContent = `0/${ship.size} celle selezionate`;
                     }
                 } else {
-                    manualSelectionInfo.style.display = 'none';
-                    modeDescription.innerHTML = '<p><strong>Modalità Rapida:</strong> Clicca una cella per posizionare la nave selezionata</p>';
+                    if (manualSelectionInfo) manualSelectionInfo.style.display = 'none';
+                    if (modeDescription) modeDescription.innerHTML = '<p><strong>Modalità Rapida:</strong> Clicca una cella per posizionare la nave selezionata</p>';
                     this.ui.showToast('Modalità Rapida: 1 click per posizionare', 'info', 2000);
                 }
 
@@ -606,13 +692,19 @@ class BattleshipApp {
             });
         });
 
-        document.getElementById('cancelSelectionBtn').addEventListener('click', () => {
-            this.cancelManualSelection();
-        });
+        const cancelSelectionBtn = document.getElementById('cancelSelectionBtn');
+        if (cancelSelectionBtn) {
+            cancelSelectionBtn.addEventListener('click', () => {
+                this.cancelManualSelection();
+            });
+        }
 
-        document.getElementById('confirmPlacementBtn').addEventListener('click', () => {
-            this.confirmManualPlacement();
-        });
+        const confirmPlacementBtn = document.getElementById('confirmPlacementBtn');
+        if (confirmPlacementBtn) {
+            confirmPlacementBtn.addEventListener('click', () => {
+                this.confirmManualPlacement();
+            });
+        }
     }
 
     randomPlacement() {
@@ -1386,10 +1478,28 @@ class BattleshipApp {
     }
 }
 
+console.log('📌 Registrazione evento DOMContentLoaded...');
+
 document.addEventListener('DOMContentLoaded', () => {
-    const app = new BattleshipApp();
-    app.init();
-    window.app = app;
+    console.log('🎯 DOMContentLoaded triggered!');
+    
+    try {
+        console.log('🏗️ Creazione istanza BattleshipApp...');
+        const app = new BattleshipApp();
+        
+        console.log('⚙️ Inizializzazione app...');
+        app.init();
+        
+        console.log('🌐 Assegnazione a window.app...');
+        window.app = app;
+        
+        console.log('✅ App inizializzata con successo!');
+    } catch (error) {
+        console.error('❌ ERRORE durante inizializzazione app:', error);
+        console.error('Stack trace:', error.stack);
+    }
 });
+
+console.log('✓ Event listener DOMContentLoaded registrato');
 
 // Made with Bob

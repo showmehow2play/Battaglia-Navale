@@ -1,9 +1,11 @@
 /**
  * BattleshipGame Class - Game Engine principale
- * 
+ *
  * @class BattleshipGame
  * @description Gestisce lo stato della partita, i turni e la logica di gioco
  */
+
+console.log('📦 Caricamento game-engine.js...');
 
 class BattleshipGame {
     /**

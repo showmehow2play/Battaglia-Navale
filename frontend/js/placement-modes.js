@@ -3,6 +3,8 @@
  * Questo file estende BattleshipApp con i metodi per la modalità manuale
  */
 
+console.log('📦 Caricamento placement-modes.js...');
+
 // Metodi da aggiungere alla classe BattleshipApp
 
 /**

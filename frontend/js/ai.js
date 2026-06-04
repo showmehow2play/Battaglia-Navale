@@ -1,9 +1,11 @@
 /**
  * AI System - Intelligenza Artificiale per modalità vs CPU
- * 
+ *
  * @module ai
  * @description Implementa 3 livelli di difficoltà: Easy, Medium, Hard
  */
+
+console.log('📦 Caricamento ai.js...');
 
 /**
  * Classe base per l'AI

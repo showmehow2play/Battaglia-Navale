@@ -1,3 +1,5 @@
+console.log('📦 Caricamento peer-multiplayer.js...');
+
 class PeerMultiplayer {
     constructor() {
         this.peer = null;

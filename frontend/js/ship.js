@@ -1,9 +1,11 @@
 /**
  * Ship Class - Rappresenta una nave nel gioco Battaglia Navale
- * 
+ *
  * @class Ship
  * @description Gestisce lo stato e le operazioni di una singola nave
  */
+
+console.log('📦 Caricamento ship.js...');
 
 class Ship {
     /**

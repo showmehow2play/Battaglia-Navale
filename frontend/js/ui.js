@@ -2,6 +2,8 @@
  * UI Manager - Gestisce il rendering e le interazioni dell'interfaccia utente
  */
 
+console.log('📦 Caricamento ui.js...');
+
 class UIManager {
     constructor() {
         this.currentScreen = 'menu';
@@ -21,8 +23,23 @@ class UIManager {
      * Inizializza l'UI Manager
      */
     init() {
-        this.showScreen('menu');
-        this.setupEventListeners();
+        console.log('🎨 UIManager.init() chiamato');
+        
+        try {
+            console.log('  → Mostrando schermo menu...');
+            this.showScreen('menu');
+            console.log('  ✓ Schermo menu mostrato');
+            
+            console.log('  → Setup event listeners UI...');
+            this.setupEventListeners();
+            console.log('  ✓ Event listeners UI configurati');
+            
+            console.log('✓ UIManager inizializzato');
+        } catch (error) {
+            console.error('❌ ERRORE in UIManager.init():', error);
+            console.error('Stack:', error.stack);
+            throw error;
+        }
     }
 
     /**
@@ -76,23 +93,41 @@ class UIManager {
      * Setup event listeners globali
      */
     setupEventListeners() {
+        console.log('  → Setup event listeners UI...');
+        
         // Pulsante indietro
-        document.getElementById('backBtn').addEventListener('click', () => {
-            if (this.currentScreen === 'setup') {
-                this.showScreen('menu');
-            } else if (this.currentScreen === 'game') {
-                if (confirm('Sei sicuro di voler abbandonare la partita?')) {
+        const backBtn = document.getElementById('backBtn');
+        if (backBtn) {
+            console.log('    ✓ backBtn trovato, aggiunta listener');
+            backBtn.addEventListener('click', () => {
+                if (this.currentScreen === 'setup') {
                     this.showScreen('menu');
+                } else if (this.currentScreen === 'game') {
+                    if (confirm('Sei sicuro di voler abbandonare la partita?')) {
+                        this.showScreen('menu');
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            console.warn('    ⚠️ backBtn non trovato nel DOM');
+        }
 
         // Toggle regole
-        document.getElementById('toggleRules').addEventListener('click', () => {
-            const rulesContent = document.getElementById('rulesContent');
-            const isVisible = rulesContent.style.display !== 'none';
-            rulesContent.style.display = isVisible ? 'none' : 'block';
-        });
+        const toggleRules = document.getElementById('toggleRules');
+        if (toggleRules) {
+            console.log('    ✓ toggleRules trovato, aggiunta listener');
+            toggleRules.addEventListener('click', () => {
+                const rulesContent = document.getElementById('rulesContent');
+                if (rulesContent) {
+                    const isVisible = rulesContent.style.display !== 'none';
+                    rulesContent.style.display = isVisible ? 'none' : 'block';
+                }
+            });
+        } else {
+            console.warn('    ⚠️ toggleRules non trovato nel DOM');
+        }
+        
+        console.log('  ✓ Event listeners UI configurati');
     }
 
     /**
