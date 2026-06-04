@@ -906,6 +906,18 @@ class BattleshipApp {
         // Show coordinate in toast messages
         if (result.result === 'sunk') {
             this.ui.showToast(`Avversario ${coordinate}: ${result.ship.name} affondata! 💥`, 'error');
+            
+            // Mostra la slot machine dell'avversario quando affonda una tua nave
+            console.log('🎰 Nave affondata dall\'avversario, mostro slot machine...');
+            this.showOpponentSlotMachine();
+            
+            // Simula l'estrazione del risultato dopo 3 secondi
+            setTimeout(() => {
+                const options = ['Dimmi', 'Dammi', 'Comanda'];
+                const randomResult = options[Math.floor(Math.random() * 3)];
+                console.log('🎰 Risultato estratto:', randomResult);
+                this.showOpponentSlotResult(randomResult);
+            }, 3000);
         } else if (result.result === 'hit') {
             this.ui.showToast(`Avversario ${coordinate}: Colpito! ✕`, 'error');
         } else if (result.result === 'miss') {
@@ -1168,6 +1180,18 @@ class BattleshipApp {
 
         if (result.result === 'sunk') {
             this.ui.showToast(`Avversario ${coordinate}: ${result.ship.name} affondata! 💥`, 'error');
+            
+            // Mostra la slot machine dell'avversario quando affonda una tua nave (multiplayer)
+            console.log('🎰 [MULTIPLAYER] Nave affondata dall\'avversario, mostro slot machine...');
+            this.showOpponentSlotMachine();
+            
+            // Simula l'estrazione del risultato dopo 3 secondi
+            setTimeout(() => {
+                const options = ['Dimmi', 'Dammi', 'Comanda'];
+                const randomResult = options[Math.floor(Math.random() * 3)];
+                console.log('🎰 [MULTIPLAYER] Risultato estratto:', randomResult);
+                this.showOpponentSlotResult(randomResult);
+            }, 3000);
         } else if (hit) {
             this.ui.showToast(`Avversario ${coordinate}: Colpito! ✕`, 'error');
         } else {
