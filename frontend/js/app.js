@@ -869,7 +869,8 @@ class BattleshipApp {
                                 // Callback CLOSE: Se tutte le navi sono affondate, mostra il popup di vittoria
                                 if (result.allShipsSunk) {
                                     console.log('🏆 Tutte le navi affondate! Mostro popup vittoria dopo chiusura slot machine');
-                                    this.endGame(true);
+                                    // Invia game_over DOPO aver chiuso la slot machine
+                                    this.endGame(true, true);
                                 }
                             }
                         );
@@ -1071,7 +1072,22 @@ class BattleshipApp {
         });
 
         this.peerMultiplayer.on('game_over', (data) => {
-            this.endGame(data.winner !== 'me', false);
+            // FIX: Non chiamare endGame immediatamente, prima chiudi la slot machine dell'avversario se aperta
+            console.log('🏆 Ricevuto game_over, winner:', data.winner);
+            const opponentModal = document.getElementById('opponentSlotModal');
+            
+            // Se il modal della slot machine dell'avversario è aperto, chiudilo e poi chiama endGame
+            if (opponentModal && opponentModal.style.display === 'flex') {
+                console.log('🎰 Slot machine avversario ancora aperta, la chiudo prima di mostrare game over');
+                opponentModal.style.display = 'none';
+                // Aspetta un attimo per dare tempo all'utente di vedere che si chiude
+                setTimeout(() => {
+                    this.endGame(data.winner !== 'me', false);
+                }, 300);
+            } else {
+                // Se non c'è slot machine aperta, chiama endGame direttamente
+                this.endGame(data.winner !== 'me', false);
+            }
         });
 
         this.peerMultiplayer.on('disconnected', () => {
@@ -1300,7 +1316,8 @@ class BattleshipApp {
                             // Callback CLOSE: Se tutte le navi sono affondate, mostra il popup di vittoria
                             if (allShipsSunk) {
                                 console.log('🏆 [ATTACCANTE] Tutte le navi affondate! Mostro popup vittoria dopo chiusura slot machine');
-                                this.endGame(true);
+                                // Invia game_over DOPO aver chiuso la slot machine
+                                this.endGame(true, true);
                             }
                         }
                     );
