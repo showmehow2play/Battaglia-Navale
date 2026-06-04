@@ -286,14 +286,17 @@ class BattleshipGame {
 
         this.emit('playerAttack', result);
 
+        // FIX: Non chiamare più endGame automaticamente - viene gestito in app.js dopo la slot machine
         // Verifica vittoria
-        if (result.allShipsSunk) {
-            this.endGame('player');
-            return result;
-        }
+        // if (result.allShipsSunk) {
+        //     this.endGame('player');
+        //     return result;
+        // }
 
-        // Cambia turno
-        this.switchTurn();
+        // Cambia turno solo se non tutte le navi sono affondate
+        if (!result.allShipsSunk) {
+            this.switchTurn();
+        }
         
         return result;
     }
@@ -330,14 +333,17 @@ class BattleshipGame {
 
         this.emit('opponentAttack', result);
 
+        // FIX: Non chiamare più endGame automaticamente - viene gestito in app.js dopo la slot machine
         // Verifica vittoria
-        if (result.allShipsSunk) {
-            this.endGame('opponent');
-            return result;
-        }
+        // if (result.allShipsSunk) {
+        //     this.endGame('opponent');
+        //     return result;
+        // }
 
-        // Cambia turno
-        this.switchTurn();
+        // Cambia turno solo se non tutte le navi sono affondate
+        if (!result.allShipsSunk) {
+            this.switchTurn();
+        }
         
         return result;
     }
