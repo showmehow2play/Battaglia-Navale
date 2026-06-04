@@ -623,9 +623,11 @@ class BattleshipApp {
                 if (window.slotMachineManager) {
                     // In modalità online, notifica l'avversario e passa callback
                     if (this.gameMode === 'online' && this.peerMultiplayer && this.peerMultiplayer.isConnected()) {
+                        console.log('🎰 Invio slot_machine_start all\'avversario');
                         this.peerMultiplayer.sendSlotMachineStart();
                         window.slotMachineManager.show((result) => {
                             // Invia il risultato all'avversario
+                            console.log('🎰 Invio risultato slot machine:', result);
                             this.peerMultiplayer.sendSlotMachineResult(result);
                         });
                     } else {
@@ -784,11 +786,13 @@ class BattleshipApp {
 
         this.peerMultiplayer.on('slot_machine_start', () => {
             // L'avversario ha affondato una nostra nave e sta per girare la slot machine
+            console.log('🎰 Ricevuto slot_machine_start, mostro popup avversario');
             this.showOpponentSlotMachine();
         });
 
         this.peerMultiplayer.on('slot_machine_result', (data) => {
             // L'avversario ha estratto un risultato dalla slot machine
+            console.log('🎰 Ricevuto risultato slot machine:', data.result);
             this.showOpponentSlotResult(data.result);
         });
 
@@ -921,12 +925,6 @@ class BattleshipApp {
 
         if (result.result === 'sunk') {
             this.ui.renderMyShipsList(this.game.playerFleet);
-            
-            // L'avversario ha affondato una nostra nave, mostra il popup dello sconfitto
-            // e notifica l'avversario che può girare la slot machine
-            setTimeout(() => {
-                this.showOpponentSlotMachine();
-            }, 1000);
         }
 
         if (result.result === 'sunk') {
