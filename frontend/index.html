@@ -338,6 +338,33 @@
                 </div>
             </div>
         </div>
+        <div id="opponentSlotModal" class="modal" style="display: none;">
+            <div class="modal-content slot-machine-modal">
+                <h2 class="slot-machine-title">😱 Che disdetta!</h2>
+                <p class="slot-machine-subtitle">Il tuo avversario ha affondato una tua nave...<br>e ora stai per conoscere la tua penitenza!</p>
+                
+                <div class="slot-machine-container">
+                    <div class="slot-machine">
+                        <div class="slot-reel spinning" id="opponentSlotReel">
+                            <div class="slot-item">Dimmi</div>
+                            <div class="slot-item">Dammi</div>
+                            <div class="slot-item">Comanda</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="slot-result" id="opponentSlotResult" style="display: none;">
+                    <div class="slot-result-text"></div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" id="closeOpponentSlotBtn" style="display: none;">
+                        Continua a Giocare
+                    </button>
+                </div>
+            </div>
+        </div>
+
 
         <div id="gameOverModal" class="modal" style="display: none;">
             <div class="modal-content">

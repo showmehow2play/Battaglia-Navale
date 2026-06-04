@@ -11,6 +11,7 @@ class SlotMachineManager {
         this.spinInterval = null;
         this.options = ['Dimmi', 'Dammi', 'Comanda'];
         this.finalResult = null;
+        this.onResultCallback = null; // Callback per notificare il risultato
     }
 
     /**
@@ -54,8 +55,9 @@ class SlotMachineManager {
 
     /**
      * Mostra la slot machine
+     * @param {Function} onResult - Callback chiamato quando viene estratto un risultato
      */
-    show() {
+    show(onResult = null) {
         if (!this.modal) {
             this.init();
             if (!this.modal) {
@@ -68,6 +70,7 @@ class SlotMachineManager {
         this.isSpinning = false;
         this.finalResult = null;
         this.spinInterval = null;
+        this.onResultCallback = onResult;
 
         // Nascondi risultato e pulsante chiudi
         const slotResult = document.getElementById('slotResult');
@@ -210,6 +213,11 @@ class SlotMachineManager {
 
         // Effetto confetti
         this.createConfetti();
+        
+        // Notifica il risultato tramite callback
+        if (this.onResultCallback && typeof this.onResultCallback === 'function') {
+            this.onResultCallback(this.finalResult);
+        }
     }
 
     /**

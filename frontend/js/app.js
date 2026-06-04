@@ -17,6 +17,7 @@ class BattleshipApp {
         this.opponentReady = false;
         this.onlineGameStarted = false;
         this.pendingAttack = null;
+        this.opponentSlotInterval = null;
         this.stats = {
             shots: 0,
             hits: 0,
@@ -620,7 +621,17 @@ class BattleshipApp {
             // Mostra la slot machine quando si affonda una nave
             setTimeout(() => {
                 if (window.slotMachineManager) {
-                    window.slotMachineManager.show();
+                    // In modalità online, notifica l'avversario e passa callback
+                    if (this.gameMode === 'online' && this.peerMultiplayer && this.peerMultiplayer.isConnected()) {
+                        this.peerMultiplayer.sendSlotMachineStart();
+                        window.slotMachineManager.show((result) => {
+                            // Invia il risultato all'avversario
+                            this.peerMultiplayer.sendSlotMachineResult(result);
+                        });
+                    } else {
+                        // Modalità CPU: mostra solo la slot machine
+                        window.slotMachineManager.show();
+                    }
                 }
             }, 1000);
         } else if (result.result === 'hit') {
@@ -769,6 +780,16 @@ class BattleshipApp {
             if (this.chatEnabled) {
                 this.ui.addChatMessage('Avversario', data.message);
             }
+        });
+
+        this.peerMultiplayer.on('slot_machine_start', () => {
+            // L'avversario ha affondato una nostra nave e sta per girare la slot machine
+            this.showOpponentSlotMachine();
+        });
+
+        this.peerMultiplayer.on('slot_machine_result', (data) => {
+            // L'avversario ha estratto un risultato dalla slot machine
+            this.showOpponentSlotResult(data.result);
         });
 
         this.peerMultiplayer.on('game_over', (data) => {
@@ -1061,6 +1082,82 @@ class BattleshipApp {
             }
             document.body.removeChild(textArea);
         });
+
+    showOpponentSlotMachine() {
+        // Mostra il popup dell'avversario con le scritte che rotano
+        const modal = document.getElementById('opponentSlotModal');
+        const reel = document.getElementById('opponentSlotReel');
+        const resultDiv = document.getElementById('opponentSlotResult');
+        const closeBtn = document.getElementById('closeOpponentSlotBtn');
+        
+        if (!modal || !reel) {
+            console.error('Elementi del modal avversario non trovati');
+            return;
+        }
+        
+        // Reset e mostra il modal
+        resultDiv.style.display = 'none';
+        closeBtn.style.display = 'none';
+        reel.classList.add('spinning');
+        modal.style.display = 'flex';
+        
+        // Avvia l'animazione di rotazione delle scritte
+        const options = ['Dimmi', 'Dammi', 'Comanda'];
+        this.opponentSlotInterval = setInterval(() => {
+            const items = reel.querySelectorAll('.slot-item');
+            items.forEach(item => {
+                item.textContent = options[Math.floor(Math.random() * 3)];
+            });
+        }, 100);
+    }
+
+    showOpponentSlotResult(result) {
+        // Ferma la rotazione e mostra il risultato estratto dall'avversario
+        if (this.opponentSlotInterval) {
+            clearInterval(this.opponentSlotInterval);
+            this.opponentSlotInterval = null;
+        }
+        
+        const reel = document.getElementById('opponentSlotReel');
+        const resultDiv = document.getElementById('opponentSlotResult');
+        const resultText = resultDiv.querySelector('.slot-result-text');
+        const closeBtn = document.getElementById('closeOpponentSlotBtn');
+        
+        if (!reel || !resultDiv || !resultText) {
+            console.error('Elementi del risultato avversario non trovati');
+            return;
+        }
+        
+        // Ferma l'animazione
+        reel.classList.remove('spinning');
+        
+        // Imposta tutti gli item del reel sul risultato finale
+        const items = reel.querySelectorAll('.slot-item');
+        items.forEach(item => {
+            item.textContent = result;
+        });
+        
+        // Aggiungi animazione di bounce
+        reel.classList.add('stopping');
+        setTimeout(() => {
+            reel.classList.remove('stopping');
+        }, 500);
+        
+        // Mostra il risultato dopo un breve delay
+        setTimeout(() => {
+            resultText.innerHTML = `😱 ${result.toUpperCase()}! 😱`;
+            resultDiv.style.display = 'block';
+            closeBtn.style.display = 'inline-block';
+            
+            // Setup del pulsante chiudi
+            closeBtn.onclick = () => {
+                const modal = document.getElementById('opponentSlotModal');
+                if (modal) {
+                    modal.style.display = 'none';
+                }
+            };
+        }, 800);
+    }
     }
 
     resetOnlineState(disconnect = true) {

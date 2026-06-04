@@ -161,6 +161,14 @@ class PeerMultiplayer {
         this.send('chat_message', { message });
     }
 
+    sendSlotMachineStart() {
+        this.send('slot_machine_start', {});
+    }
+
+    sendSlotMachineResult(result) {
+        this.send('slot_machine_result', { result });
+    }
+
     sendGameOver(payload) {
         this.send('game_over', payload);
     }
