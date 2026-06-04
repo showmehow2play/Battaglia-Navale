@@ -1082,6 +1082,7 @@ class BattleshipApp {
             }
             document.body.removeChild(textArea);
         });
+    }
 
     showOpponentSlotMachine() {
         // Mostra il popup dell'avversario con le scritte che rotano
