@@ -1554,7 +1554,8 @@ main {
     font-size: 2rem;
     font-weight: 700;
     color: white;
-    margin-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
 }
 
 .setup-subtitle {
@@ -1562,11 +1563,63 @@ main {
     color: rgba(255, 255, 255, 0.8);
 }
 
+.online-setup-info {
+    background: rgba(99, 102, 241, 0.15);
+    padding: 1rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.room-code-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    color: white;
+    font-size: 1rem;
+}
+
+.room-code-display strong {
+    font-size: 1.2rem;
+    color: var(--secondary-light);
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
 .setup-content {
     display: grid;
-    grid-template-columns: 320px 1fr 320px;
+    grid-template-columns: 1fr 320px;
     gap: 2rem;
     align-items: start;
+}
+
+.setup-grid-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.setup-ships-section {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    padding: 1.5rem;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.setup-ships-section h3 {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    color: white;
+}
+
+.setup-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1rem;
 }
 
 .ships-panel {
@@ -1585,6 +1638,52 @@ main {
 
 .ships-selection {
     margin-bottom: 1.5rem;
+}
+
+/* Placement Mode Selector */
+.placement-mode-selector {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    justify-content: center;
+}
+
+.placement-mode-selector .mode-btn {
+    flex: 1;
+    max-width: 200px;
+}
+
+.mode-description {
+    background: rgba(99, 102, 241, 0.15);
+    padding: 1rem;
+    border-radius: 12px;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.mode-description p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.95rem;
+}
+
+.manual-selection-info {
+    background: rgba(255, 193, 7, 0.15);
+    padding: 1rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.manual-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+}
+
+.manual-actions .btn {
+    flex: 1;
 }
 
 /* Placement Mode Panel */
