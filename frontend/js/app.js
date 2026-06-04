@@ -745,6 +745,10 @@ class BattleshipApp {
         
         this.setupAttackClickHandler();
 
+        console.log('🔍 DEBUG - Risultato attacco:', result);
+        console.log('🔍 DEBUG - result.result:', result.result);
+        console.log('🔍 DEBUG - result.result === "sunk":', result.result === 'sunk');
+
         if (result.result === 'sunk') {
             console.log('🎰🎰🎰 NAVE AFFONDATA! 🎰🎰🎰');
             console.log('gameMode:', this.gameMode);
