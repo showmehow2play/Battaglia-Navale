@@ -859,18 +859,34 @@ class BattleshipApp {
                         console.log('🎰 [ATTACCANTE] Invio slot_machine_start all\'avversario');
                         this.peerMultiplayer.sendSlotMachineStart();
                         console.log('🎰 [ATTACCANTE] Evento inviato, mostro slot machine');
-                        window.slotMachineManager.show((result) => {
+                        window.slotMachineManager.show((slotResult) => {
                             // Invia il risultato all'avversario
-                            console.log('🎰 [ATTACCANTE] Invio risultato slot machine:', result);
-                            this.peerMultiplayer.sendSlotMachineResult(result);
+                            console.log('🎰 [ATTACCANTE] Invio risultato slot machine:', slotResult);
+                            this.peerMultiplayer.sendSlotMachineResult(slotResult);
+                            
+                            // Se tutte le navi sono affondate, mostra il popup di vittoria dopo la slot machine
+                            if (result.allShipsSunk) {
+                                console.log('🏆 Tutte le navi affondate! Mostro popup vittoria dopo slot machine');
+                                this.endGame(true);
+                            }
                         });
                     } else {
                         // Modalità CPU: mostra solo la slot machine
                         console.log('🎰 Modalità CPU o non connesso, mostro solo slot machine locale');
-                        window.slotMachineManager.show();
+                        window.slotMachineManager.show(() => {
+                            // Se tutte le navi sono affondate, mostra il popup di vittoria dopo la slot machine
+                            if (result.allShipsSunk) {
+                                console.log('🏆 Tutte le navi affondate! Mostro popup vittoria dopo slot machine');
+                                this.endGame(true);
+                            }
+                        });
                     }
                 } else {
                     console.error('🎰 slotMachineManager NON TROVATO!');
+                    // Fallback: se la slot machine non esiste, mostra comunque il popup di vittoria
+                    if (result.allShipsSunk) {
+                        this.endGame(true);
+                    }
                 }
             }, 1000);
         } else if (result.result === 'hit') {
@@ -879,9 +895,10 @@ class BattleshipApp {
             this.ui.showToast(`${coordinate}: Acqua 💧`, 'info');
         }
 
-        if (result.allShipsSunk) {
-            this.endGame(true);
-        }
+        // Non chiamare più endGame qui - viene chiamato nel callback della slot machine
+        // if (result.allShipsSunk) {
+        //     this.endGame(true);
+        // }
     }
 
     handleOpponentAttackResult(result, row, col) {

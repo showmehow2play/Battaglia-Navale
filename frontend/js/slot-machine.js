@@ -215,11 +215,6 @@ class SlotMachineManager {
 
         // Effetto confetti
         this.createConfetti();
-        
-        // Notifica il risultato tramite callback
-        if (this.onResultCallback && typeof this.onResultCallback === 'function') {
-            this.onResultCallback(this.finalResult);
-        }
     }
 
     /**
@@ -235,6 +230,12 @@ class SlotMachineManager {
         // Nascondi modal
         this.modal.style.display = 'none';
         this.isSpinning = false;
+        
+        // Notifica il risultato tramite callback quando si chiude il modal
+        if (this.onResultCallback && typeof this.onResultCallback === 'function') {
+            this.onResultCallback(this.finalResult);
+            this.onResultCallback = null; // Reset callback per evitare chiamate multiple
+        }
     }
 
     /**
