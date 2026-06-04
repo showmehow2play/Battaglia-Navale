@@ -1,194 +1,182 @@
-# ⚓ Battaglia Navale - Web Game
+# ⚓ Battaglia Navale
 
-Un gioco di Battaglia Navale completo giocabile nel browser, con modalità vs CPU.
-
-![Version](https://img.shields.io/badge/version-1.0.0-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
-![Status](https://img.shields.io/badge/status-stable-green)
+Un gioco della Battaglia Navale moderno e interattivo con supporto per modalità single-player contro AI e multiplayer online peer-to-peer.
 
 ## 🎮 Caratteristiche
 
 ### Modalità di Gioco
-- **🤖 vs CPU**: Gioca contro il computer con 3 livelli di difficoltà
-  - **Facile**: Tiri completamente casuali
-  - **Medio**: Strategia "Hunt & Target" (cerca e colpisci)
-  - **Difficile**: Algoritmo probabilistico con pattern a scacchiera
+- **VS Computer**: Sfida l'intelligenza artificiale con 3 livelli di difficoltà (Facile, Medio, Difficile)
+- **Multiplayer Online**: Gioca contro un amico in tempo reale tramite connessione peer-to-peer
+- **Chat Opzionale**: Comunica con l'avversario durante le partite online
 
-### Regole Classiche
-- Griglia 10x10 (A-J, 1-10)
-- 5 navi: Portaerei (5), Corazzata (4), Incrociatore (3), Sottomarino (3), Cacciatorpediniere (2)
-- Posizionamento orizzontale o verticale
-- Nessuna sovrapposizione
-- Turni alternati
-- Esiti: Acqua / Colpito / Affondato
-- Vittoria: Tutte le navi avversarie affondate
+### Posizionamento Navi
+- **Modalità Rapida**: Posiziona le navi con un singolo click
+- **Modalità Manuale**: Seleziona manualmente ogni cella della nave
+- **Posizionamento Casuale**: Lascia che il computer posizioni le navi automaticamente
+- **Regola Celle Attigue**: Le navi non possono essere posizionate in celle adiacenti
 
-### Design Moderno
-- ✨ Glassmorphism UI
-- 🎨 Gradienti animati
-- 🎬 Animazioni 3D fluide
-- 📱 Completamente responsive
-- ♿ Accessibile (WCAG AA)
-- ⌨️ Navigazione da tastiera
+### Funzionalità Speciali
+- **Slot Machine**: Quando affondi una nave nemica, gioca alla slot machine per un premio speciale!
+- **Statistiche in Tempo Reale**: Monitora colpi, precisione e stato delle flotte
+- **Interfaccia Moderna**: Design glassmorphism con animazioni fluide
+- **Responsive**: Ottimizzato per desktop e dispositivi mobili
 
-## 🚀 Quick Start
+## 🚀 Come Iniziare
 
-1. Apri `frontend/index.html` nel browser
-2. Seleziona "Gioca vs CPU"
-3. Scegli la difficoltà
-4. Posiziona le tue navi
-5. Inizia a giocare!
+### Requisiti
+- Browser moderno (Chrome, Firefox, Safari, Edge)
+- Connessione internet (solo per modalità multiplayer)
 
-**Oppure usa un server HTTP locale:**
-```bash
-cd frontend
-python3 -m http.server 8080
-```
-Poi apri: **http://localhost:8080**
+### Avvio Locale
+1. Apri il file `index.html` nel tuo browser
+2. Scegli la modalità di gioco
+3. Posiziona le tue navi
+4. Inizia a giocare!
+
+### Modalità Multiplayer
+1. **Creare una Partita**:
+   - Clicca su "Crea Partita Live"
+   - Condividi il codice stanza con un amico
+   - Attendi che l'altro giocatore si connetta
+
+2. **Entrare in una Partita**:
+   - Clicca su "Entra con Codice"
+   - Inserisci il codice ricevuto dall'host
+   - Connettiti e inizia a giocare
 
 ## 📁 Struttura del Progetto
 
 ```
 Battaglia navale/
-├── frontend/                    # Frontend statico
-│   ├── index.html              # Pagina principale
-│   ├── css/
-│   │   └── style.css           # Stili completi
-│   ├── js/
-│   │   ├── game-engine.js      # Core logica di gioco
-│   │   ├── grid.js             # Gestione griglie
-│   │   ├── ship.js             # Classe navi
-│   │   ├── ai.js               # AI per CPU
-│   │   ├── ui.js               # Gestione UI
-│   │   └── utils.js            # Utility
-│   └── assets/
-│       ├── sounds/             # Effetti sonori
-│       └── images/             # Icone
-│
-├── ui-prototype.html           # Prototipo UI
-├── DESIGN-MODERNO.md           # Guida design
-└── README.md                   # Questo file
+├── index.html              # Pagina principale (root)
+├── README.md               # Documentazione
+├── .gitignore
+├── docs/                   # Documentazione aggiuntiva
+└── frontend/
+    ├── css/
+    │   └── style.css       # Stili dell'applicazione
+    ├── js/
+    │   ├── app.js          # Applicazione principale
+    │   ├── game-engine.js  # Logica di gioco
+    │   ├── ui.js           # Gestione interfaccia
+    │   ├── grid.js         # Gestione griglia
+    │   ├── ship.js         # Gestione navi
+    │   ├── ai.js           # Intelligenza artificiale
+    │   ├── peer-multiplayer.js  # Multiplayer P2P
+    │   ├── placement-modes.js   # Modalità posizionamento
+    │   ├── slot-machine.js      # Slot machine
+    │   ├── utils.js        # Funzioni utility
+    │   └── peerjs.min.js   # Libreria PeerJS
+    └── assets/
+        ├── images/         # Immagini del gioco
+        └── sounds/         # Effetti sonori
 ```
 
-## 🛠️ Installazione
+## 🎯 Regole del Gioco
 
-### Nessuna installazione richiesta!
-Il gioco è completamente statico e funziona aprendo `frontend/index.html` nel browser.
+### Obiettivo
+Affonda tutte le navi avversarie prima che affondi le tue.
 
-### Server HTTP Locale (Opzionale)
-Per evitare problemi CORS, puoi usare un server HTTP locale:
+### Flotta
+- **Portaerei** (5 celle) 🚢
+- **Corazzata** (4 celle) ⚓
+- **Incrociatore** (3 celle) 🛳️
+- **Sottomarino** (3 celle) 🚤
+- **Cacciatorpediniere** (2 celle) ⛵
 
-```bash
-cd frontend
-python3 -m http.server 8080
-```
+### Setup
+1. Posiziona le tue 5 navi sulla griglia 10x10
+2. Le navi possono essere orizzontali o verticali
+3. Le navi non possono sovrapporsi
+4. Le navi non possono essere in celle attigue (incluse diagonali)
 
-Poi apri: **http://localhost:8080**
-
-## 🎯 Come Giocare
-
-### Posizionamento Navi
-1. Seleziona una nave dalla lista
-2. Clicca sulla griglia per posizionarla
-3. Usa il pulsante "Ruota" per cambiare orientamento
-4. Ripeti per tutte le 5 navi
-5. Clicca "Inizia Partita"
-
-### Durante la Partita
-- **Tuo turno**: Clicca su una cella della griglia avversaria per sparare
-- **Turno avversario**: Attendi che l'avversario spari
-- **Esiti**:
-  - 🌊 Cerchio grigio = Acqua (mancato)
-  - 🔥 X arancione = Colpito
-  - 💥 Esplosione rossa = Affondato
+### Gameplay
+1. A turno, scegli una cella nella griglia avversaria
+2. **💧 Acqua**: Colpo mancato
+3. **✕ Colpito**: Hai colpito una nave
+4. **💥 Affondato**: Hai affondato una nave completa
+5. Quando affondi una nave, gioca alla slot machine!
 
 ### Vittoria
-Affonda tutte le 5 navi avversarie per vincere!
+Vince chi affonda per primo tutte le navi avversarie.
 
-## 🎨 Personalizzazione
+## 🤖 Livelli AI
 
-### Temi Colore
-Modifica le variabili CSS in `frontend/css/style.css`:
-```css
-:root {
-  --primary-color: #6366f1;
-  --secondary-color: #14b8a6;
-  --water-color: #0ea5e9;
-  /* ... */
-}
-```
+### Facile 😊
+- Spara casualmente sulla griglia
+- Ideale per principianti
 
-### Difficoltà AI
-Modifica i parametri in `frontend/js/ai.js`:
-```javascript
-const AI_SETTINGS = {
-  easy: { random: true },
-  medium: { huntTarget: true },
-  hard: { probability: true, checkerboard: true }
-};
-```
+### Medio 😐
+- Usa strategia Hunt & Target
+- Dopo un colpo, cerca nelle celle adiacenti
+- Buon equilibrio tra sfida e divertimento
 
-## 🌐 Deployment
+### Difficile 😈
+- Usa mappa di probabilità avanzata
+- Pattern a scacchiera per massimizzare efficienza
+- Identifica direzione delle navi dopo 2 colpi
+- Sfida anche per giocatori esperti
 
-### GitHub Pages
-1. Crea un repository GitHub
-2. Carica la cartella `frontend/`
-3. Vai su Settings → Pages
-4. Seleziona branch e cartella
-5. Il sito sarà live su `https://username.github.io/repo-name/`
+## 🛠️ Tecnologie Utilizzate
 
-Il gioco funziona completamente lato client, quindi non serve alcun backend!
+- **HTML5**: Struttura dell'applicazione
+- **CSS3**: Stili moderni con glassmorphism e animazioni
+- **JavaScript (ES6+)**: Logica di gioco e interazioni
+- **PeerJS**: Connessioni peer-to-peer per multiplayer
+- **LocalStorage**: Salvataggio preferenze
 
-## 🧪 Testing
+## 🎨 Design
 
-Apri `frontend/index.html` e testa:
-- Posizionamento navi
-- Modalità vs CPU (tutte le difficoltà)
-- Responsive design (ridimensiona finestra)
-- Accessibilità (naviga con Tab)
+Il gioco utilizza un design moderno con:
+- **Glassmorphism**: Effetti vetro sfumato
+- **Gradient Animati**: Sfondo dinamico
+- **Animazioni Fluide**: Transizioni smooth
+- **Responsive Design**: Adattamento a tutti i dispositivi
+- **Accessibilità**: Supporto screen reader e navigazione da tastiera
 
-## 📚 Documentazione
+## 📝 Note di Sviluppo
 
-- **[DESIGN-MODERNO.md](DESIGN-MODERNO.md)**: Guida al design UI
-- **[COME_AVVIARE.md](COME_AVVIARE.md)**: Guida rapida all'avvio
+### Architettura
+Il progetto segue un'architettura modulare con separazione delle responsabilità:
+- **app.js**: Orchestrazione generale
+- **game-engine.js**: Logica di gioco core
+- **ui.js**: Rendering e interazioni UI
+- **grid.js**: Gestione stato griglia
+- **ship.js**: Gestione stato navi
+- **ai.js**: Intelligenza artificiale
+- **peer-multiplayer.js**: Networking P2P
 
-## 🤝 Contribuire
+### Estensibilità
+Il codice è progettato per essere facilmente estendibile:
+- Aggiungi nuove modalità di gioco
+- Implementa nuovi livelli AI
+- Personalizza l'interfaccia
+- Aggiungi power-up e bonus
 
-Contributi benvenuti! Per favore:
-1. Fai fork del progetto
-2. Crea un branch per la feature (`git checkout -b feature/AmazingFeature`)
-3. Commit le modifiche (`git commit -m 'Add AmazingFeature'`)
-4. Push al branch (`git push origin feature/AmazingFeature`)
-5. Apri una Pull Request
+## 🐛 Risoluzione Problemi
 
-## 📝 Roadmap
+### La connessione multiplayer non funziona
+- Verifica la connessione internet
+- Controlla che il firewall non blocchi PeerJS
+- Prova a ricaricare la pagina
 
-- [x] Design UI moderno
-- [x] Prototipo interattivo
-- [x] Game engine completo
-- [x] AI a 3 livelli
-- [ ] Effetti sonori
-- [ ] Animazioni avanzate
-- [ ] Temi personalizzabili
-- [ ] Statistiche locali
+### Le navi non si posizionano
+- Verifica che non ci siano sovrapposizioni
+- Controlla che le navi non siano in celle attigue
+- Assicurati che la nave non esca dalla griglia
 
-## 🐛 Bug Noti
-
-Nessuno al momento. Segnala bug aprendo una issue!
+### Il gioco è lento
+- Chiudi altre schede del browser
+- Disabilita estensioni del browser
+- Aggiorna il browser all'ultima versione
 
 ## 📄 Licenza
 
-MIT License - vedi [LICENSE](LICENSE) per dettagli
+Questo progetto è stato creato per scopi educativi e di intrattenimento.
 
 ## 👨‍💻 Autore
 
-**Bob** - Software Engineer
-
-## 🙏 Ringraziamenti
-
-- Design ispirato a Glassmorphism e Material Design 3
-- Font: Poppins (Google Fonts)
-- Icone: Emoji native
+Sviluppato con ❤️ usando Bob AI Assistant
 
 ---
 
