@@ -383,16 +383,20 @@
 
     <div id="toastContainer" class="toast-container"></div>
 
-    <script src="js/peerjs.min.js?v=2"></script>
-    <script src="js/utils.js?v=2"></script>
-    <script src="js/ship.js?v=2"></script>
-    <script src="js/grid.js?v=2"></script>
-    <script src="js/ai.js?v=2"></script>
-    <script src="js/game-engine.js?v=2"></script>
-    <script src="js/ui.js?v=2"></script>
-    <script src="js/placement-modes.js?v=2"></script>
-    <script src="js/slot-machine.js?v=2"></script>
-    <script src="js/peer-multiplayer.js?v=2"></script>
-    <script src="js/app.js?v=2"></script>
+    <script>
+        // Timestamp per forzare il ricaricamento dei file JavaScript
+        const cacheBuster = Date.now();
+    </script>
+    <script src="js/peerjs.min.js"></script>
+    <script>document.write('<script src="js/utils.js?v=' + cacheBuster + '"><\/script>');</script>
+    <script>document.write('<script src="js/ship.js?v=' + cacheBuster + '"><\/script>');</script>
+    <script>document.write('<script src="js/grid.js?v=' + cacheBuster + '"><\/script>');</script>
+    <script>document.write('<script src="js/ai.js?v=' + cacheBuster + '"><\/script>');</script>
+    <script>document.write('<script src="js/game-engine.js?v=' + cacheBuster + '"><\/script>');</script>
+    <script>document.write('<script src="js/ui.js?v=' + cacheBuster + '"><\/script>');</script>
+    <script>document.write('<script src="js/placement-modes.js?v=' + cacheBuster + '"><\/script>');</script>
+    <script>document.write('<script src="js/slot-machine.js?v=' + cacheBuster + '"><\/script>');</script>
+    <script>document.write('<script src="js/peer-multiplayer.js?v=' + cacheBuster + '"><\/script>');</script>
+    <script>document.write('<script src="js/app.js?v=' + cacheBuster + '"><\/script>');</script>
 </body>
 </html>
