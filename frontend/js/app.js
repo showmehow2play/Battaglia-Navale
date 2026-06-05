@@ -1230,6 +1230,7 @@ class BattleshipApp {
             col,
             result: result.result,
             shipType: result.ship ? result.ship.type : null,
+            shipCoordinates: result.ship && result.result === 'sunk' ? result.ship.getCoordinates() : null,
             allShipsSunk: this.game.playerGrid.areAllShipsSunk()
         });
 
@@ -1243,34 +1244,30 @@ class BattleshipApp {
     }
 
     handlePeerAttackResult(data) {
-        const { row, col, result, shipType, allShipsSunk } = data;
+        const { row, col, result, shipType, shipCoordinates, allShipsSunk } = data;
         const target = this.pendingAttack || { row, col };
         const cell = this.game.opponentGrid.cells[target.row][target.col];
 
         if (result === 'hit') {
             cell.state = Grid.CELL_STATES.HIT;
         } else if (result === 'sunk') {
-            // FIX: Marca la cella corrente come SUNK
-            cell.state = Grid.CELL_STATES.SUNK;
+            // FIX: Usa le coordinate inviate dal difensore per marcare tutte le celle come SUNK
+            if (shipCoordinates && Array.isArray(shipCoordinates)) {
+                // Marca tutte le celle della nave come SUNK usando le coordinate ricevute
+                shipCoordinates.forEach(coord => {
+                    const shipCell = this.game.opponentGrid.cells[coord.row][coord.col];
+                    shipCell.state = Grid.CELL_STATES.SUNK;
+                });
+            } else {
+                // Fallback: marca solo la cella corrente
+                cell.state = Grid.CELL_STATES.SUNK;
+            }
             
-            // FIX: Trova TUTTE le celle HIT adiacenti e marcale come SUNK
-            // Questo marca tutte le celle della nave affondata
+            // Marca la nave come completamente affondata
             if (shipType) {
                 const enemyShip = this.game.opponentFleet.find(s => s.type === shipType);
                 if (enemyShip) {
-                    // Marca la nave come completamente affondata
                     enemyShip.hits = new Set(Array(enemyShip.size).fill('x'));
-                }
-            }
-            
-            // Cerca tutte le celle HIT nella griglia e marcale come SUNK se fanno parte della stessa nave
-            for (let r = 0; r < Grid.SIZE; r++) {
-                for (let c = 0; c < Grid.SIZE; c++) {
-                    const gridCell = this.game.opponentGrid.cells[r][c];
-                    // Se la cella è HIT e ha una nave dello stesso tipo, marcala come SUNK
-                    if (gridCell.state === Grid.CELL_STATES.HIT && gridCell.ship && gridCell.ship.type === shipType) {
-                        gridCell.state = Grid.CELL_STATES.SUNK;
-                    }
                 }
             }
         } else {
