@@ -8,6 +8,7 @@ Un gioco della Battaglia Navale moderno e interattivo con supporto per modalità
 - **VS Computer**: Sfida l'intelligenza artificiale con 3 livelli di difficoltà (Facile, Medio, Difficile)
 - **Multiplayer Online**: Gioca contro un amico in tempo reale tramite connessione peer-to-peer
 - **Chat Opzionale**: Comunica con l'avversario durante le partite online
+- **🎥 Face-to-Face Mode**: Modalità segreta con webcam (scopri come sbloccarla!)
 
 ### Posizionamento Navi
 - **Modalità Rapida**: Posiziona le navi con un singolo click
@@ -173,6 +174,14 @@ Il codice è progettato per essere facilmente estendibile:
 ## 📄 Licenza
 
 Questo progetto è stato creato per scopi educativi e di intrattenimento.
+
+## 🎁 Easter Egg
+
+Il gioco nasconde una **modalità segreta** che permette di giocare vedendo l'avversario in tempo reale tramite webcam!
+
+🔍 **Hint**: Prova a scrivere qualcosa nella chat durante una partita online...
+
+📖 Per maggiori dettagli, consulta la [documentazione completa](docs/WEBCAM_EASTER_EGG.md).
 
 ## 👨‍💻 Autore
 

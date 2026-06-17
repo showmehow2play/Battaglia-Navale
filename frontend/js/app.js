@@ -17,11 +17,13 @@ class BattleshipApp {
             this.game = null;
             this.aiManager = null;
             this.peerMultiplayer = null;
+            this.webcamManager = null;
             this.gameMode = null;
             this.difficulty = null;
             this.roomCode = null;
             this.isHost = false;
             this.chatEnabled = true; // Default: chat abilitata
+            this.webcamEnabled = false; // Webcam disabilitata di default
             this.opponentReady = false;
             this.onlineGameStarted = false;
             this.pendingAttack = null;
@@ -36,6 +38,10 @@ class BattleshipApp {
                 hits: 0,
                 misses: 0
             };
+            
+            // Easter Egg per modalità webcam (attivato tramite chat)
+            this.easterEggTrigger = 'guardami';
+            this.webcamModeUnlocked = false;
             
             console.log('✓ Costruttore BattleshipApp completato');
         } catch (error) {
@@ -67,6 +73,14 @@ class BattleshipApp {
             console.log('  → Setup modal listeners...');
             this.setupModalListeners();
             console.log('  ✓ Modal listeners configurati');
+            
+            console.log('  → Setup Easter Egg...');
+            this.setupEasterEgg();
+            console.log('  ✓ Easter Egg configurato');
+            
+            console.log('  → Controllo stato webcam...');
+            this.checkUnlockedStatus();
+            console.log('  ✓ Stato webcam verificato');
 
             console.log('✓ Applicazione inizializzata');
         } catch (error) {
@@ -1235,7 +1249,7 @@ class BattleshipApp {
         });
 
         if (this.game.playerGrid.areAllShipsSunk()) {
-            this.endGame(false);
+            console.log('🏆 [DIFENSORE] Tutte le navi affondate! Attendo il flusso slot machine prima del game over');
             return;
         }
 
@@ -1364,6 +1378,14 @@ class BattleshipApp {
         if (!this.chatEnabled) {
             this.ui.showToast('Chat disabilitata per questa partita', 'warning');
             return;
+        }
+
+        // Easter Egg: Controlla se il messaggio è "guardami"
+        if (message.toLowerCase() === this.easterEggTrigger) {
+            console.log('🎥 Easter Egg attivato: guardami!');
+            input.value = '';
+            this.activateWebcamDuringGame();
+            return; // Non inviare il messaggio "guardami" nella chat
         }
 
         if (this.peerMultiplayer && this.peerMultiplayer.isConnected()) {
@@ -1586,6 +1608,230 @@ class BattleshipApp {
         this.pendingAttack = null;
         this.toggleOnlineStatus(false);
         this.ui.showGameOver(isWinner, this.stats);
+    }
+
+    // ==================== EASTER EGG WEBCAM MODE ====================
+
+    setupEasterEgg() {
+        // Easter Egg ora gestito tramite chat (messaggio "guardami")
+        // Manteniamo il metodo vuoto per compatibilità
+    }
+
+    async activateWebcamDuringGame() {
+        // Se già attivata, non fare nulla
+        if (this.webcamEnabled) {
+            this.ui.showToast('🎥 Webcam già attiva!', 'info');
+            return;
+        }
+
+        // Verifica supporto webcam
+        try {
+            if (!this.webcamManager) {
+                this.webcamManager = new WebcamManager();
+            }
+            
+            const isSupported = await this.webcamManager.isWebcamSupported();
+            
+            if (!isSupported) {
+                this.ui.showToast('❌ Webcam non disponibile o connessione non sicura', 'error', 4000);
+                return;
+            }
+            
+            // Mostra toast di sblocco con effetto
+            this.ui.showToast('🎉 Modalità Face-to-Face sbloccata!', 'success', 3000);
+            
+            // Effetto confetti sulla schermata di gioco
+            this.createGameConfetti();
+            
+            // Mostra il pannello webcam
+            await this.showWebcamPanel();
+            
+            // Notifica l'altro giocatore
+            if (this.peerMultiplayer && this.peerMultiplayer.isConnected()) {
+                this.peerMultiplayer.send('webcam_mode_activated', {});
+            }
+            
+        } catch (error) {
+            console.error('Errore attivazione webcam:', error);
+            this.ui.showToast('❌ Impossibile attivare webcam', 'error');
+        }
+    }
+
+    async showWebcamPanel() {
+        const webcamPanel = document.getElementById('webcamPanel');
+        if (!webcamPanel) return;
+        
+        // Mostra il pannello
+        webcamPanel.style.display = 'flex';
+        webcamPanel.style.animation = 'slideInRight 0.5s ease';
+        
+        // Setup del pulsante toggle
+        const toggleBtn = document.getElementById('toggleWebcamBtn');
+        if (toggleBtn) {
+            toggleBtn.onclick = async () => {
+                if (!this.webcamEnabled) {
+                    await this.enableWebcam();
+                } else {
+                    this.disableWebcam();
+                }
+            };
+        }
+        
+        // Setup listener per chiamate video in arrivo
+        if (this.peerMultiplayer) {
+            this.peerMultiplayer.setupVideoCallListener();
+            
+            this.peerMultiplayer.on('incoming_video_call', async (data) => {
+                console.log('📹 Chiamata video in arrivo');
+                
+                // Se la webcam è attiva, rispondi automaticamente
+                if (this.webcamManager && this.webcamManager.isActive()) {
+                    const localStream = this.webcamManager.getLocalStream();
+                    this.peerMultiplayer.answerVideoCall(data.call, localStream);
+                } else {
+                    // Altrimenti chiedi all'utente
+                    this.ui.showToast('📹 L\'avversario ha attivato la webcam!', 'info', 3000);
+                }
+            });
+            
+            this.peerMultiplayer.on('remote_stream', (data) => {
+                console.log('📹 Stream remoto ricevuto');
+                const remoteVideo = document.getElementById('remoteVideo');
+                const remotePlaceholder = document.getElementById('remoteVideoPlaceholder');
+                const remoteStatus = document.getElementById('remoteWebcamStatus');
+                
+                if (remoteVideo && data.stream) {
+                    remoteVideo.srcObject = data.stream;
+                    remoteVideo.style.display = 'block';
+                    if (remotePlaceholder) remotePlaceholder.style.display = 'none';
+                    if (remoteStatus) remoteStatus.classList.remove('disconnected');
+                }
+            });
+        }
+    }
+
+    async enableWebcam() {
+        try {
+            if (!this.webcamManager) {
+                this.webcamManager = new WebcamManager();
+            }
+            
+            const localStream = await this.webcamManager.enableWebcam();
+            
+            if (localStream) {
+                this.webcamEnabled = true;
+                
+                // Collega al video element
+                const localVideo = document.getElementById('localVideo');
+                const localPlaceholder = document.getElementById('localVideoPlaceholder');
+                const localStatus = document.getElementById('localWebcamStatus');
+                const toggleBtn = document.getElementById('toggleWebcamBtn');
+                
+                if (localVideo) {
+                    this.webcamManager.attachLocalVideo(localVideo);
+                    localVideo.style.display = 'block';
+                    if (localPlaceholder) localPlaceholder.style.display = 'none';
+                    if (localStatus) localStatus.classList.remove('disconnected');
+                }
+                
+                if (toggleBtn) {
+                    toggleBtn.textContent = 'Disattiva Webcam';
+                    toggleBtn.classList.add('active');
+                }
+                
+                // Avvia la chiamata video con il peer
+                if (this.peerMultiplayer && this.peerMultiplayer.isConnected()) {
+                    await this.peerMultiplayer.startVideoCall(localStream);
+                }
+                
+                this.ui.showToast('✅ Webcam attivata', 'success');
+            }
+        } catch (error) {
+            console.error('Errore attivazione webcam:', error);
+            this.ui.showToast('❌ ' + error.message, 'error');
+        }
+    }
+
+    disableWebcam() {
+        if (this.webcamManager) {
+            this.webcamManager.disableWebcam();
+        }
+        
+        this.webcamEnabled = false;
+        
+        const localVideo = document.getElementById('localVideo');
+        const localPlaceholder = document.getElementById('localVideoPlaceholder');
+        const localStatus = document.getElementById('localWebcamStatus');
+        const toggleBtn = document.getElementById('toggleWebcamBtn');
+        
+        if (localVideo) localVideo.style.display = 'none';
+        if (localPlaceholder) localPlaceholder.style.display = 'flex';
+        if (localStatus) localStatus.classList.add('disconnected');
+        
+        if (toggleBtn) {
+            toggleBtn.textContent = 'Attiva Webcam';
+            toggleBtn.classList.remove('active');
+        }
+        
+        this.ui.showToast('Webcam disattivata', 'info');
+    }
+
+    createGameConfetti() {
+        const gameScreen = document.getElementById('gameScreen');
+        if (!gameScreen) return;
+        
+        const rect = gameScreen.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        
+        const emojis = ['🎉', '✨', '🎊', '⭐', '💫', '🌟', '📹', '🎥'];
+        
+        for (let i = 0; i < 40; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'confetti-particle';
+            particle.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+            
+            const randomX = (Math.random() - 0.5) * 300;
+            const randomY = Math.random() * 400;
+            const randomRotation = Math.random() * 720;
+            
+            particle.style.cssText = `
+                position: fixed;
+                left: ${centerX}px;
+                top: ${centerY}px;
+                font-size: 28px;
+                pointer-events: none;
+                z-index: 10000;
+                animation: confetti-fall-${i} 2.5s ease-out forwards;
+            `;
+            
+            const styleSheet = document.createElement('style');
+            styleSheet.textContent = `
+                @keyframes confetti-fall-${i} {
+                    0% {
+                        transform: translate(0, 0) rotate(0deg);
+                        opacity: 1;
+                    }
+                    100% {
+                        transform: translate(${randomX}px, ${randomY}px) rotate(${randomRotation}deg);
+                        opacity: 0;
+                    }
+                }
+            `;
+            document.head.appendChild(styleSheet);
+            
+            document.body.appendChild(particle);
+            
+            setTimeout(() => {
+                particle.remove();
+                styleSheet.remove();
+            }, 2500);
+        }
+    }
+
+    checkUnlockedStatus() {
+        // Non più necessario - l'Easter Egg si attiva durante la partita
+        // Manteniamo il metodo vuoto per compatibilità
     }
 }
 

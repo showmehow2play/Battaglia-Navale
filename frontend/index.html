@@ -256,6 +256,39 @@
                     </div>
                 </div>
 
+                <!-- Webcam Panel (solo per modalità Face-to-Face) -->
+                <div id="webcamPanel" class="webcam-panel" style="display: none;">
+                    <div class="webcam-panel-header">
+                        <div class="webcam-panel-title">
+                            <span>📹</span>
+                            <span>Face-to-Face</span>
+                        </div>
+                        <button class="webcam-toggle-btn" id="toggleWebcamBtn">
+                            Attiva Webcam
+                        </button>
+                    </div>
+                    
+                    <div class="video-container local-video">
+                        <div class="video-label">Tu</div>
+                        <div class="webcam-status" id="localWebcamStatus"></div>
+                        <video id="localVideo" autoplay muted playsinline></video>
+                        <div class="video-placeholder" id="localVideoPlaceholder">
+                            <div class="video-placeholder-icon">📹</div>
+                            <div>Webcam non attiva</div>
+                        </div>
+                    </div>
+                    
+                    <div class="video-container remote-video">
+                        <div class="video-label">Avversario</div>
+                        <div class="webcam-status disconnected" id="remoteWebcamStatus"></div>
+                        <video id="remoteVideo" autoplay playsinline></video>
+                        <div class="video-placeholder" id="remoteVideoPlaceholder">
+                            <div class="video-placeholder-icon">👤</div>
+                            <div>In attesa dell'avversario...</div>
+                        </div>
+                    </div>
+                </div>
+
                 <div id="chatPanel" class="chat-panel" style="display: none;">
                     <div class="chat-header">
                         <h3>💬 Chat partita</h3>
@@ -368,7 +401,8 @@
     <script src="js/ui.js?v=5"></script>
     <script src="js/placement-modes.js?v=5"></script>
     <script src="js/slot-machine.js?v=5"></script>
-    <script src="js/peer-multiplayer.js?v=5"></script>
-    <script src="js/app.js?v=5"></script>
+    <script src="js/webcam-manager.js?v=6"></script>
+    <script src="js/peer-multiplayer.js?v=6"></script>
+    <script src="js/app.js?v=6"></script>
 </body>
 </html>

@@ -4,11 +4,15 @@ class PeerMultiplayer {
     constructor() {
         this.peer = null;
         this.connection = null;
+        this.call = null; // Per gestire le chiamate video
         this.eventHandlers = {};
         this.peerId = null;
         this.pendingHostCode = null;
         this.isHost = false;
         this.chatEnabled = true; // Default: chat abilitata
+        this.webcamEnabled = false; // Webcam disabilitata di default
+        this.localStream = null;
+        this.remoteStream = null;
     }
 
     on(event, handler) {
@@ -189,10 +193,139 @@ class PeerMultiplayer {
             this.connection = null;
         }
 
+        // Chiudi la chiamata video se attiva
+        if (this.call) {
+            this.call.close();
+            this.call = null;
+        }
+
+        // Ferma lo stream locale
+        if (this.localStream) {
+            this.localStream.getTracks().forEach(track => track.stop());
+            this.localStream = null;
+        }
+
         if (this.peer) {
             this.peer.destroy();
             this.peer = null;
         }
+
+        this.remoteStream = null;
+    }
+
+    // ==================== WEBCAM METHODS ====================
+
+    /**
+     * Abilita la webcam e configura lo streaming
+     */
+    enableWebcam(enabled) {
+        this.webcamEnabled = enabled;
+    }
+
+    /**
+     * Avvia lo streaming video con il peer connesso
+     */
+    async startVideoCall(localStream) {
+        if (!this.peer || !this.connection || !this.connection.open) {
+            throw new Error('Connessione peer non attiva');
+        }
+
+        if (!localStream) {
+            throw new Error('Stream locale non disponibile');
+        }
+
+        this.localStream = localStream;
+
+        console.log('📹 Avvio chiamata video con peer:', this.connection.peer);
+
+        // Effettua la chiamata video
+        this.call = this.peer.call(this.connection.peer, localStream);
+
+        // Gestisci lo stream remoto
+        this.call.on('stream', (remoteStream) => {
+            console.log('📹 Stream remoto ricevuto');
+            this.remoteStream = remoteStream;
+            this.emit('remote_stream', { stream: remoteStream });
+        });
+
+        this.call.on('close', () => {
+            console.log('📹 Chiamata video chiusa');
+            this.remoteStream = null;
+            this.emit('video_call_closed');
+        });
+
+        this.call.on('error', (error) => {
+            console.error('❌ Errore chiamata video:', error);
+            this.emit('video_call_error', { error: error.message });
+        });
+    }
+
+    /**
+     * Risponde a una chiamata video in arrivo
+     */
+    answerVideoCall(incomingCall, localStream) {
+        if (!localStream) {
+            console.warn('Stream locale non disponibile, rispondo senza video');
+        }
+
+        this.call = incomingCall;
+        this.localStream = localStream;
+
+        console.log('📹 Rispondo a chiamata video');
+
+        // Rispondi con il tuo stream
+        this.call.answer(localStream);
+
+        // Gestisci lo stream remoto
+        this.call.on('stream', (remoteStream) => {
+            console.log('📹 Stream remoto ricevuto (answer)');
+            this.remoteStream = remoteStream;
+            this.emit('remote_stream', { stream: remoteStream });
+        });
+
+        this.call.on('close', () => {
+            console.log('📹 Chiamata video chiusa');
+            this.remoteStream = null;
+            this.emit('video_call_closed');
+        });
+
+        this.call.on('error', (error) => {
+            console.error('❌ Errore chiamata video:', error);
+            this.emit('video_call_error', { error: error.message });
+        });
+    }
+
+    /**
+     * Setup listener per chiamate video in arrivo
+     */
+    setupVideoCallListener() {
+        if (!this.peer) return;
+
+        this.peer.on('call', (incomingCall) => {
+            console.log('📹 Chiamata video in arrivo');
+            this.emit('incoming_video_call', { call: incomingCall });
+        });
+    }
+
+    /**
+     * Ottiene lo stream remoto
+     */
+    getRemoteStream() {
+        return this.remoteStream;
+    }
+
+    /**
+     * Ottiene lo stream locale
+     */
+    getLocalStream() {
+        return this.localStream;
+    }
+
+    /**
+     * Verifica se la webcam è abilitata
+     */
+    isWebcamEnabled() {
+        return this.webcamEnabled;
     }
 }
 
