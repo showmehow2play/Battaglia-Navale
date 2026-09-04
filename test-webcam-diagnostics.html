@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Diagnostica Webcam</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .test-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .test-section h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-left: 10px;
+            font-size: 0.9em;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+        
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .video-container {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .video-box {
+            flex: 1;
+            min-width: 300px;
+            background: #000;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        video {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .video-label {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+        
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .error-box {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .log {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+        
+        .log-entry {
+            margin: 5px 0;
+            padding: 3px 0;
+        }
+        
+        .log-success { color: #4caf50; }
+        .log-error { color: #f44336; }
+        .log-warning { color: #ff9800; }
+        .log-info { color: #2196F3; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎥 Diagnostica Webcam</h1>
+        <p class="subtitle">Test completo per identificare problemi con la webcam</p>
+        
+        <!-- Test 1: Ambiente -->
+        <div class="test-section">
+            <h2>1️⃣ Verifica Ambiente</h2>
+            <div id="envTest">
+                <p>⏳ In attesa di test...</p>
+            </div>
+        </div>
+        
+        <!-- Test 2: API Disponibilità -->
+        <div class="test-section">
+            <h2>2️⃣ API MediaDevices</h2>
+            <div id="apiTest">
+                <p>⏳ In attesa di test...</p>
+            </div>
+        </div>
+        
+        <!-- Test 3: Dispositivi -->
+        <div class="test-section">
+            <h2>3️⃣ Dispositivi Video</h2>
+            <div id="devicesTest">
+                <p>⏳ In attesa di test...</p>
+            </div>
+            <button id="listDevicesBtn">Elenca Dispositivi</button>
+        </div>
+        
+        <!-- Test 4: Permessi -->
+        <div class="test-section">
+            <h2>4️⃣ Test Permessi Webcam</h2>
+            <div id="permissionsTest">
+                <p>⏳ Clicca il pulsante per testare...</p>
+            </div>
+            <button id="testPermissionsBtn">Richiedi Permessi</button>
+        </div>
+        
+        <!-- Test 5: Attivazione Webcam -->
+        <div class="test-section">
+            <h2>5️⃣ Attivazione Webcam</h2>
+            <div id="webcamTest">
+                <p>⏳ Clicca il pulsante per attivare...</p>
+            </div>
+            <button id="enableWebcamBtn" disabled>Attiva Webcam</button>
+            <button id="disableWebcamBtn" disabled>Disattiva Webcam</button>
+            
+            <div class="video-container" id="videoContainer" style="display: none;">
+                <div class="video-box">
+                    <div class="video-label">📹 La Tua Webcam</div>
+                    <video id="localVideo" autoplay playsinline muted></video>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Log Console -->
+        <div class="test-section">
+            <h2>📋 Log Dettagliato</h2>
+            <div class="log" id="logContainer"></div>
+        </div>
+        
+        <!-- Soluzioni -->
+        <div class="test-section">
+            <h2>💡 Soluzioni Comuni</h2>
+            <div id="solutions"></div>
+        </div>
+    </div>
+
+    <script>
+        // Logger
+        const logger = {
+            log(message, type = 'info') {
+                const logContainer = document.getElementById('logContainer');
+                const entry = document.createElement('div');
+                entry.className = `log-entry log-${type}`;
+                const timestamp = new Date().toLocaleTimeString();
+                entry.textContent = `[${timestamp}] ${message}`;
+                logContainer.appendChild(entry);
+                logContainer.scrollTop = logContainer.scrollHeight;
+                console.log(`[${type.toUpperCase()}]`, message);
+            }
+        };
+
+        let localStream = null;
+
+        // Test 1: Ambiente
+        function testEnvironment() {
+            logger.log('Inizio test ambiente...', 'info');
+            const envTest = document.getElementById('envTest');
+            let html = '';
+            
+            const protocol = window.location.protocol;
+            const hostname = window.location.hostname;
+            const isSecure = protocol === 'https:' || hostname === 'localhost' || hostname === '127.0.0.1';
+            
+            html += `<p><strong>Protocollo:</strong> ${protocol} `;
+            html += isSecure ? '<span class="status success">✓ OK</span>' : '<span class="status error">✗ HTTPS Richiesto</span>';
+            html += '</p>';
+            
+            html += `<p><strong>Hostname:</strong> ${hostname}</p>`;
+            html += `<p><strong>User Agent:</strong> ${navigator.userAgent}</p>`;
+            
+            envTest.innerHTML = html;
+            
+            if (!isSecure) {
+                logger.log('ERRORE: Connessione non sicura. Usa HTTPS o localhost', 'error');
+                showSolution('https');
+            } else {
+                logger.log('Ambiente OK: Connessione sicura', 'success');
+            }
+            
+            return isSecure;
+        }
+
+        // Test 2: API
+        function testAPI() {
+            logger.log('Inizio test API...', 'info');
+            const apiTest = document.getElementById('apiTest');
+            let html = '';
+            
+            const hasNavigator = typeof navigator !== 'undefined';
+            const hasMediaDevices = hasNavigator && navigator.mediaDevices;
+            const hasGetUserMedia = hasMediaDevices && typeof navigator.mediaDevices.getUserMedia === 'function';
+            
+            html += `<p><strong>navigator:</strong> `;
+            html += hasNavigator ? '<span class="status success">✓ Disponibile</span>' : '<span class="status error">✗ Non disponibile</span>';
+            html += '</p>';
+            
+            html += `<p><strong>navigator.mediaDevices:</strong> `;
+            html += hasMediaDevices ? '<span class="status success">✓ Disponibile</span>' : '<span class="status error">✗ Non disponibile</span>';
+            html += '</p>';
+            
+            html += `<p><strong>getUserMedia:</strong> `;
+            html += hasGetUserMedia ? '<span class="status success">✓ Disponibile</span>' : '<span class="status error">✗ Non disponibile</span>';
+            html += '</p>';
+            
+            apiTest.innerHTML = html;
+            
+            if (!hasGetUserMedia) {
+                logger.log('ERRORE: API getUserMedia non disponibile', 'error');
+                showSolution('browser');
+                return false;
+            }
+            
+            logger.log('API OK: getUserMedia disponibile', 'success');
+            return true;
+        }
+
+        // Test 3: Dispositivi
+        async function testDevices() {
+            logger.log('Inizio test dispositivi...', 'info');
+            const devicesTest = document.getElementById('devicesTest');
+            
+            try {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const videoDevices = devices.filter(d => d.kind === 'videoinput');
+                
+                let html = `<p><strong>Dispositivi totali:</strong> ${devices.length}</p>`;
+                html += `<p><strong>Webcam trovate:</strong> ${videoDevices.length} `;
+                
+                if (videoDevices.length > 0) {
+                    html += '<span class="status success">✓ OK</span></p>';
+                    html += '<ul>';
+                    videoDevices.forEach((device, i) => {
+                        html += `<li>${i + 1}. ${device.label || 'Webcam ' + (i + 1)} (ID: ${device.deviceId.substring(0, 20)}...)</li>`;
+                    });
+                    html += '</ul>';
+                    logger.log(`Trovate ${videoDevices.length} webcam`, 'success');
+                } else {
+                    html += '<span class="status error">✗ Nessuna webcam</span></p>';
+                    logger.log('ERRORE: Nessuna webcam trovata', 'error');
+                    showSolution('nowebcam');
+                }
+                
+                devicesTest.innerHTML = html;
+                return videoDevices.length > 0;
+                
+            } catch (error) {
+                logger.log(`ERRORE enumerazione dispositivi: ${error.message}`, 'error');
+                devicesTest.innerHTML = `<p class="error-box">Errore: ${error.message}</p>`;
+                return false;
+            }
+        }
+
+        // Test 4: Permessi
+        async function testPermissions() {
+            logger.log('Richiesta permessi webcam...', 'info');
+            const permissionsTest = document.getElementById('permissionsTest');
+            
+            try {
+                // Richiedi solo permessi senza attivare lo stream
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: true, 
+                    audio: false 
+                });
+                
+                // Ferma immediatamente lo stream
+                stream.getTracks().forEach(track => track.stop());
+                
+                permissionsTest.innerHTML = '<p class="info-box">✓ Permessi concessi! Ora puoi attivare la webcam.</p>';
+                logger.log('Permessi concessi con successo', 'success');
+                
+                document.getElementById('enableWebcamBtn').disabled = false;
+                return true;
+                
+            } catch (error) {
+                logger.log(`ERRORE permessi: ${error.name} - ${error.message}`, 'error');
+                
+                let html = '<div class="error-box">';
+                html += `<p><strong>Errore:</strong> ${error.name}</p>`;
+                html += `<p><strong>Messaggio:</strong> ${error.message}</p>`;
+                
+                if (error.name === 'NotAllowedError') {
+                    html += '<p>❌ Hai negato i permessi per la webcam.</p>';
+                    showSolution('permissions');
+                } else if (error.name === 'NotFoundError') {
+                    html += '<p>❌ Nessuna webcam trovata sul dispositivo.</p>';
+                    showSolution('nowebcam');
+                } else if (error.name === 'NotReadableError') {
+                    html += '<p>❌ La webcam è in uso da un\'altra applicazione.</p>';
+                    showSolution('inuse');
+                }
+                
+                html += '</div>';
+                permissionsTest.innerHTML = html;
+                return false;
+            }
+        }
+
+        // Test 5: Attivazione Webcam
+        async function enableWebcam() {
+            logger.log('Attivazione webcam...', 'info');
+            const webcamTest = document.getElementById('webcamTest');
+            const videoContainer = document.getElementById('videoContainer');
+            const localVideo = document.getElementById('localVideo');
+            
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        width: { ideal: 640 },
+                        height: { ideal: 480 },
+                        facingMode: 'user'
+                    },
+                    audio: false
+                });
+                
+                localVideo.srcObject = localStream;
+                videoContainer.style.display = 'flex';
+                
+                webcamTest.innerHTML = '<p class="info-box">✓ Webcam attivata con successo!</p>';
+                logger.log('Webcam attivata e stream collegato', 'success');
+                
+                document.getElementById('enableWebcamBtn').disabled = true;
+                document.getElementById('disableWebcamBtn').disabled = false;
+                
+                // Info stream
+                const videoTrack = localStream.getVideoTracks()[0];
+                const settings = videoTrack.getSettings();
+                logger.log(`Risoluzione: ${settings.width}x${settings.height}`, 'info');
+                logger.log(`Frame rate: ${settings.frameRate} FPS`, 'info');
+                
+            } catch (error) {
+                logger.log(`ERRORE attivazione: ${error.name} - ${error.message}`, 'error');
+                webcamTest.innerHTML = `<div class="error-box"><p>Errore: ${error.message}</p></div>`;
+            }
+        }
+
+        function disableWebcam() {
+            logger.log('Disattivazione webcam...', 'info');
+            
+            if (localStream) {
+                localStream.getTracks().forEach(track => {
+                    track.stop();
+                    logger.log(`Track ${track.kind} fermato`, 'info');
+                });
+                
+                document.getElementById('localVideo').srcObject = null;
+                document.getElementById('videoContainer').style.display = 'none';
+                localStream = null;
+                
+                document.getElementById('enableWebcamBtn').disabled = false;
+                document.getElementById('disableWebcamBtn').disabled = true;
+                
+                logger.log('Webcam disattivata', 'success');
+            }
+        }
+
+        function showSolution(type) {
+            const solutions = document.getElementById('solutions');
+            let html = '';
+            
+            switch(type) {
+                case 'https':
+                    html = `
+                        <div class="info-box">
+                            <h3>🔒 Problema: Connessione non sicura</h3>
+                            <p><strong>Soluzione:</strong></p>
+                            <ol>
+                                <li>Usa HTTPS invece di HTTP</li>
+                                <li>Oppure testa su localhost (http://localhost:8000)</li>
+                                <li>Per sviluppo locale: <code>python3 -m http.server 8000</code></li>
+                            </ol>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'browser':
+                    html = `
+                        <div class="info-box">
+                            <h3>🌐 Problema: Browser non supportato</h3>
+                            <p><strong>Soluzione:</strong></p>
+                            <ol>
+                                <li>Usa Chrome 80+, Firefox 75+, o Safari 14+</li>
+                                <li>Aggiorna il browser all'ultima versione</li>
+                            </ol>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'nowebcam':
+                    html = `
+                        <div class="info-box">
+                            <h3>📹 Problema: Nessuna webcam trovata</h3>
+                            <p><strong>Soluzione:</strong></p>
+                            <ol>
+                                <li>Collega una webcam USB</li>
+                                <li>Verifica che la webcam sia riconosciuta dal sistema</li>
+                                <li>Riavvia il browser dopo aver collegato la webcam</li>
+                            </ol>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'permissions':
+                    html = `
+                        <div class="info-box">
+                            <h3>🔐 Problema: Permessi negati</h3>
+                            <p><strong>Soluzione:</strong></p>
+                            <ol>
+                                <li>Clicca sull'icona del lucchetto nella barra URL</li>
+                                <li>Trova "Fotocamera" e seleziona "Consenti"</li>
+                                <li>Ricarica la pagina</li>
+                            </ol>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'inuse':
+                    html = `
+                        <div class="info-box">
+                            <h3>⚠️ Problema: Webcam in uso</h3>
+                            <p><strong>Soluzione:</strong></p>
+                            <ol>
+                                <li>Chiudi altre applicazioni che usano la webcam (Zoom, Skype, Teams, ecc.)</li>
+                                <li>Chiudi altre schede del browser che usano la webcam</li>
+                                <li>Riavvia il browser</li>
+                            </ol>
+                        </div>
+                    `;
+                    break;
+            }
+            
+            solutions.innerHTML = html;
+        }
+
+        // Event Listeners
+        document.getElementById('listDevicesBtn').addEventListener('click', testDevices);
+        document.getElementById('testPermissionsBtn').addEventListener('click', testPermissions);
+        document.getElementById('enableWebcamBtn').addEventListener('click', enableWebcam);
+        document.getElementById('disableWebcamBtn').addEventListener('click', disableWebcam);
+
+        // Auto-run tests
+        window.addEventListener('load', async () => {
+            logger.log('=== INIZIO DIAGNOSTICA WEBCAM ===', 'info');
+            
+            const envOk = testEnvironment();
+            await new Promise(r => setTimeout(r, 500));
+            
+            const apiOk = testAPI();
+            await new Promise(r => setTimeout(r, 500));
+            
+            if (envOk && apiOk) {
+                await testDevices();
+            }
+            
+            logger.log('=== DIAGNOSTICA COMPLETATA ===', 'info');
+            logger.log('Clicca "Richiedi Permessi" per continuare', 'info');
+        });
+    </script>
+</body>
+</html>

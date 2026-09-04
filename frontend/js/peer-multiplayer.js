@@ -116,9 +116,13 @@ class PeerMultiplayer {
     attachConnection(conn) {
         this.connection = conn;
 
-        conn.on('open', () => {
+        if (conn.open) {
             this.emit('connected', { peerId: conn.peer });
-        });
+        } else {
+            conn.on('open', () => {
+                this.emit('connected', { peerId: conn.peer });
+            });
+        }
 
         conn.on('data', (data) => {
             if (!data || !data.type) return;
